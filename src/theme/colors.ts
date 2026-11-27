@@ -11,4 +11,6 @@ export const colors = {
   textSecondary: "#6b756f",
   textLight: "#98a39b",
   error: "#b3261e",
+  warning: "#d96b27",
+  warningLight: "#fbecec",
 } as const;

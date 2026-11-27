@@ -29,6 +29,7 @@ export default function VerifyOtpScreen() {
 
   const role = accountType === "wholesaler" ? "wholesaler" : "retailer";
   const totalSteps = role === "wholesaler" ? 4 : 3;
+  const displayStep = role === "wholesaler" ? 2 : 3;
 
   const [otp, setOtp] = useState("");
   const [countdown, setCountdown] = useState(0);
@@ -70,16 +71,7 @@ export default function VerifyOtpScreen() {
       return;
     }
 
-    Alert.alert(
-      "Account Verified",
-      "Your wholesaler account has been verified. Please log in to continue.",
-      [
-        {
-          text: "Continue",
-          onPress: () => router.replace("/(auth)/login"),
-        },
-      ],
-    );
+    router.push("/(auth)/wholesaler-business");
   };
 
   return (
@@ -90,7 +82,12 @@ export default function VerifyOtpScreen() {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <OnboardingHeader showBack step={3} totalSteps={totalSteps} logoHeight={115} />
+        <OnboardingHeader
+          showBack
+          step={displayStep}
+          totalSteps={totalSteps}
+          logoHeight={115}
+        />
 
         <Text style={styles.heading}>{"Enter\nverification\ncode"}</Text>
 
