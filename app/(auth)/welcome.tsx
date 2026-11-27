@@ -201,15 +201,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeight.semiBold,
   },
 
-  termsText: {
-    fontSize: typography.fontSize.caption,
-    color: colors.textLight,
-    textAlign: "center",
-    lineHeight: 18,
-    marginTop: "auto",
-    paddingTop: spacing.xxl,
-  },
-
   termsContainer: {
     width: "100%",
     marginTop: spacing.xxl,

@@ -1,4 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
+import type { ComponentRef } from "react";
 import { useEffect, useRef, useState } from "react";
 import {
   Alert,
@@ -21,7 +22,7 @@ export default function ResetPinOtpScreen() {
   const [otp, setOtp] = useState("");
   const [countdown, setCountdown] = useState(45);
 
-  const inputRef = useRef<TextInput>(null);
+  const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
 
   useEffect(() => {
     if (countdown <= 0) return;
