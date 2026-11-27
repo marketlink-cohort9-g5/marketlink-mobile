@@ -1,96 +1,209 @@
 import { router } from "expo-router";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { useState } from "react";
+import {
+  Alert,
+  Image,
+  type ImageSourcePropType,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { colors, spacing, typography } from "@/theme";
+import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
+import { colors } from "@/theme/colors";
+import { spacing } from "@/theme/spacing";
+import { typography } from "@/theme/typography";
+
+type AccountRole = "retailer" | "wholesaler";
+
+interface AccountOption {
+  id: AccountRole;
+  title: string;
+  description: string;
+  image: ImageSourcePropType;
+}
+
+const ACCOUNT_OPTIONS: AccountOption[] = [
+  {
+    id: "retailer",
+    title: "Retailer",
+    description: "Buy products from trusted wholesalers at competitive prices.",
+    image: require("../../../assets/images/marketlink/retailer-card.png"),
+  },
+  {
+    id: "wholesaler",
+    title: "Wholesaler",
+    description: "Sell your products and receive orders from retailers.",
+    image: require("../../../assets/images/marketlink/wholesaler-card.png"),
+  },
+];
 
 /**
- * Placeholder onboarding screen linking Welcome / Login to Shop Setup.
+ * Account type selection screen matching Figma Account Type (Unselected / Selected) frames.
  */
-export default function OnboardingScreen() {
-  return (
-    <View style={styles.container}>
-      <Pressable onPress={() => router.back()} style={styles.backButton}>
-        <Text style={styles.backText}>‹ Back</Text>
-      </Pressable>
+export default function OnboardingAccountTypeScreen() {
+  const [selectedRole, setSelectedRole] = useState<AccountRole | null>(null);
 
-      <View style={styles.body}>
-        <Text style={styles.title}>Create Your Account</Text>
+  const buttonLabel =
+    selectedRole === "retailer"
+      ? "Continue as a Retailer"
+      : selectedRole === "wholesaler"
+        ? "Continue as a Wholesaler"
+        : "Continue";
+
+  const handleContinue = () => {
+    if (!selectedRole) {
+      Alert.alert(
+        "Select Account Type",
+        "Please choose Retailer or Wholesaler to continue.",
+      );
+      return;
+    }
+
+    router.push({
+      pathname: "/(auth)/create-account",
+      params: { accountType: selectedRole },
+    });
+  };
+
+  return (
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
+        <OnboardingHeader showBack logoHeight={100} />
+
+        <Text style={styles.heading}>How will you use MarketLink?</Text>
+
         <Text style={styles.subtitle}>
-          Account type selection and registration screens from the Figma Project
-          Page will connect here.
+          Choose your account type to get started.
         </Text>
 
-        <Pressable
-          style={styles.primaryButton}
-          onPress={() => router.push("/(auth)/shop-setup")}
-        >
-          <Text style={styles.primaryButtonText}>Continue to Shop Setup</Text>
-        </Pressable>
+        {ACCOUNT_OPTIONS.map((option) => {
+          const isSelected = selectedRole === option.id;
+          return (
+            <Pressable
+              key={option.id}
+              onPress={() => setSelectedRole(option.id)}
+              style={styles.optionBlock}
+            >
+              <View
+                style={[
+                  styles.imageCard,
+                  isSelected && styles.imageCardSelected,
+                ]}
+              >
+                <Image
+                  source={option.image}
+                  style={styles.cardImage}
+                  resizeMode="cover"
+                />
+              </View>
+
+              <Text style={styles.optionTitle}>{option.title}</Text>
+              <Text style={styles.optionDescription}>{option.description}</Text>
+            </Pressable>
+          );
+        })}
 
         <Pressable
-          style={styles.secondaryButton}
-          onPress={() => router.replace("/(auth)/login")}
+          style={({ pressed }) => [
+            styles.primaryButton,
+            pressed && styles.pressed,
+          ]}
+          onPress={handleContinue}
         >
-          <Text style={styles.secondaryButtonText}>Already have an account? Log In</Text>
+          <Text style={styles.primaryButtonText}>{buttonLabel}</Text>
         </Pressable>
-      </View>
-    </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
     backgroundColor: colors.primaryLight,
-    padding: spacing.xl,
-    paddingTop: spacing.xxxl,
   },
-  backButton: {
-    alignSelf: "flex-start",
-    minHeight: 48,
-    justifyContent: "center",
-  },
-  backText: {
-    fontSize: typography.fontSize.body,
-    fontWeight: typography.fontWeight.semiBold,
-    color: colors.primary,
-  },
-  body: {
+  scrollView: {
     flex: 1,
-    justifyContent: "center",
-    gap: spacing.lg,
+    backgroundColor: colors.primaryLight,
   },
-  title: {
+  container: {
+    flexGrow: 1,
+    width: "100%",
+    maxWidth: 440,
+    alignSelf: "center",
+    padding: spacing.xl,
+    gap: spacing.lg,
+    alignItems: "flex-start",
+  },
+  heading: {
+    fontSize: typography.fontSize.title,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.text,
+    width: "100%",
+  },
+  subtitle: {
+    fontSize: typography.fontSize.body,
+    fontWeight: typography.fontWeight.regular,
+    color: colors.textSecondary,
+    textAlign: "center",
+    width: "100%",
+  },
+  optionBlock: {
+    width: "100%",
+    gap: spacing.md,
+  },
+  imageCard: {
+    width: "100%",
+    height: 175,
+    borderRadius: 16,
+    overflow: "hidden",
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  imageCardSelected: {
+    borderWidth: 5,
+    borderColor: colors.primary,
+  },
+  cardImage: {
+    width: "100%",
+    height: "100%",
+  },
+  optionTitle: {
     fontSize: typography.fontSize.title,
     fontWeight: typography.fontWeight.bold,
     color: colors.text,
   },
-  subtitle: {
+  optionDescription: {
     fontSize: typography.fontSize.body,
-    color: colors.textSecondary,
-    lineHeight: 24,
+    fontWeight: typography.fontWeight.regular,
+    color: colors.text,
+    lineHeight: 22,
   },
   primaryButton: {
-    height: 54,
+    width: "100%",
     backgroundColor: colors.primary,
-    borderRadius: 12,
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: spacing.md,
+    marginTop: spacing.xs,
   },
   primaryButtonText: {
     color: colors.white,
-    fontSize: typography.fontSize.body,
-    fontWeight: typography.fontWeight.bold,
-  },
-  secondaryButton: {
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  secondaryButtonText: {
-    color: colors.primary,
-    fontSize: typography.fontSize.caption,
+    fontSize: typography.fontSize.subtitle,
     fontWeight: typography.fontWeight.semiBold,
+  },
+  pressed: {
+    opacity: 0.85,
   },
 });

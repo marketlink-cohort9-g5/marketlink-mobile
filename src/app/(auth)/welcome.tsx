@@ -1,114 +1,115 @@
-import { useState } from "react";
-
-import {
-  Image,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-
 import { router } from "expo-router";
+import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
 
+
 export default function WelcomeScreen() {
-  const [hasAgreed, setHasAgreed] = useState(false);
   return (
-    <ScrollView
-      contentContainerStyle={styles.container}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* MarketLink Logo */}
-      <View style={styles.logoContainer}>
-        <Image
-          source={require("../../../assets/images/marketlink/logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-      </View>
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={styles.container}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* MarketLink Logo */}
+        <View style={styles.logoContainer}>
+          <Image
+            source={require("../../../assets/images/marketlink/logo.png")}
+            style={styles.logo}
+            resizeMode="contain"
+          />
+        </View>
 
-      {/*Image Placeholder */}
-      <View style={styles.imagePlaceholder}>
-        <Image
-          source={require("../../../assets/images/marketlink/welcome.png")}
-          style={styles.welcomeImage}
-          resizeMode="cover"
-        />
-      </View>
+        {/* Welcome Illustration */}
+        <View style={styles.illustrationContainer}>
+          <Image
+            source={require("../../../assets/images/marketlink/welcome.png")}
+            style={styles.welcomeImage}
+            resizeMode="cover"
+          />
+        </View>
 
-      {/* Main Heading */}
-      <View style={styles.textContainer}>
-        <Text style={styles.heading}>Your Marketplace, Just A Tap Away!</Text>
+        {/* Headline & Supporting Copy */}
+        <Text style={styles.heading}>{"Your Marketplace,\nJust A Tap Away"}</Text>
 
         <Text style={styles.description}>
           Buy and sell everyday products with ease.
-          {"\n\n"}
+        </Text>
+
+        <Text style={styles.description}>
           Connect with trusted wholesalers and retailers on MarketLink.
         </Text>
-      </View>
 
-      {/* Get Started Button */}
-      <Pressable
-        style={[styles.primaryButton, !hasAgreed && { opacity: 0.5 }]}
-        disabled={!hasAgreed}
-        onPress={() => router.push("/(auth)/onboarding")}
-      >
-        <Text style={styles.primaryButtonText}>Get Started</Text>
-      </Pressable>
-      {/* Sign In Section */}
-      <Text style={styles.accountText}>Already have an account?</Text>
+        {/* Primary Action */}
+        <Pressable
+          style={({ pressed }) => [
+            styles.primaryButton,
+            pressed && styles.pressed,
+          ]}
+          onPress={() => router.push("/(auth)/onboarding")}
+        >
+          <Text style={styles.primaryButtonText}>Get Started</Text>
+        </Pressable>
 
-      <Pressable
-        style={styles.secondaryButton}
-        onPress={() => router.push("/(auth)/login" as any)}
-      >
-        <Text style={styles.secondaryButtonText}>Sign In</Text>
-      </Pressable>
-
-      <View style={styles.termsContainer}>
-        <Text style={styles.termsText}>
-          By continuing, you agree to our Terms and Conditions and Privacy
-          Policy.
-        </Text>
+        {/* Sign In Section */}
+        <Text style={styles.accountText}>Already have an account?</Text>
 
         <Pressable
-          style={styles.checkboxRow}
-          onPress={() => setHasAgreed(!hasAgreed)}
+          style={({ pressed }) => [
+            styles.secondaryButton,
+            pressed && styles.pressed,
+          ]}
+          onPress={() => router.push("/(auth)/login")}
         >
-          <View style={[styles.checkbox, hasAgreed && styles.checkboxChecked]}>
-            {hasAgreed && <Text style={styles.checkmark}>✓</Text>}
-          </View>
-
-          <Text style={styles.checkboxLabel}>
-            I agree to the Terms and Conditions and Privacy Policy.
-          </Text>
+          <Text style={styles.secondaryButtonText}>Sign In</Text>
         </Pressable>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.primaryLight,
+  },
+
+  scrollView: {
+    flex: 1,
+    backgroundColor: colors.primaryLight,
+  },
+
   container: {
     flexGrow: 1,
-    backgroundColor: colors.white,
-    paddingHorizontal: spacing.xl,
-    paddingTop: spacing.xxxl,
-    paddingBottom: spacing.xl,
-    alignItems: "center",
+    width: "100%",
+    maxWidth: 440,
+    alignSelf: "center",
+    padding: spacing.xl,
+    gap: spacing.lg,
+    alignItems: "flex-start",
   },
 
   logoContainer: {
-    marginBottom: spacing.xxl,
+    width: "100%",
+    alignItems: "center",
   },
 
   logo: {
-    width: 240,
-    height: 80,
+    width: "100%",
+    height: 115,
+  },
+
+  illustrationContainer: {
+    width: "100%",
+    aspectRatio: 1,
+    maxHeight: 360,
+    borderRadius: 16,
+    overflow: "hidden",
+    backgroundColor: colors.primaryLight,
   },
 
   welcomeImage: {
@@ -116,132 +117,65 @@ const styles = StyleSheet.create({
     height: "100%",
   },
 
-  imagePlaceholder: {
-    width: "100%",
-    height: 190,
-    backgroundColor: colors.primaryLight,
-    borderRadius: 16,
-    overflow: "hidden",
-    marginBottom: spacing.xxl,
-  },
-
-  placeholderTitle: {
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.bold,
-    color: colors.primary,
-    textAlign: "center",
-    marginBottom: spacing.sm,
-  },
-
-  placeholderText: {
-    fontSize: typography.fontSize.body,
-    color: colors.textSecondary,
-    textAlign: "center",
-  },
-
-  textContainer: {
-    width: "100%",
-    alignItems: "center",
-    marginBottom: spacing.xxl,
-  },
-
   heading: {
     fontSize: typography.fontSize.heading,
     fontWeight: typography.fontWeight.bold,
     color: colors.text,
-    textAlign: "center",
-    marginBottom: spacing.lg,
+    letterSpacing: 1.6,
+    textAlign: "left",
+    width: "100%",
   },
 
   description: {
     fontSize: typography.fontSize.body,
+    fontWeight: typography.fontWeight.regular,
     color: colors.textSecondary,
     textAlign: "center",
-    lineHeight: 25,
+    width: "100%",
   },
 
   primaryButton: {
     width: "100%",
-    minHeight: 52,
     backgroundColor: colors.primary,
-    borderRadius: 12,
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: spacing.xl,
     justifyContent: "center",
     alignItems: "center",
-    marginBottom: spacing.lg,
   },
 
   primaryButtonText: {
     color: colors.white,
-    fontSize: typography.fontSize.body,
+    fontSize: typography.fontSize.subtitle,
     fontWeight: typography.fontWeight.semiBold,
   },
 
   accountText: {
     fontSize: typography.fontSize.body,
-    color: colors.textSecondary,
-    marginBottom: spacing.md,
+    fontWeight: typography.fontWeight.regular,
+    color: colors.text,
+    textAlign: "left",
   },
 
   secondaryButton: {
     width: "100%",
-    minHeight: 52,
-    borderWidth: 1.5,
+    backgroundColor: colors.white,
+    borderWidth: 1,
     borderColor: colors.primary,
-    borderRadius: 12,
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: spacing.xl,
     justifyContent: "center",
     alignItems: "center",
   },
 
   secondaryButtonText: {
     color: colors.primary,
-    fontSize: typography.fontSize.body,
+    fontSize: typography.fontSize.subtitle,
     fontWeight: typography.fontWeight.semiBold,
   },
 
-  termsContainer: {
-    width: "100%",
-    marginTop: spacing.xxl,
-  },
-
-  termsText: {
-    fontSize: typography.fontSize.caption,
-    color: colors.textLight,
-    textAlign: "center",
-    lineHeight: 18,
-    marginBottom: spacing.md,
-  },
-
-  checkboxRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: spacing.sm,
-    minHeight: 48,
-  },
-
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderWidth: 1.5,
-    borderColor: colors.primary,
-    borderRadius: 4,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  checkboxChecked: {
-    backgroundColor: colors.primary,
-  },
-
-  checkmark: {
-    color: colors.white,
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-
-  checkboxLabel: {
-    flex: 1,
-    fontSize: typography.fontSize.caption,
-    color: colors.textSecondary,
+  pressed: {
+    opacity: 0.85,
   },
 });
