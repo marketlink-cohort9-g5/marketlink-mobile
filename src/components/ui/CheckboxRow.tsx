@@ -1,4 +1,4 @@
-import { Image as ExpoImage } from "expo-image";
+import { Ionicons } from "@react-native-vector-icons/ionicons/static";
 import { Pressable, StyleSheet, Text, View } from "react-native";
 
 import { colors } from "@/theme/colors";
@@ -13,7 +13,7 @@ interface CheckboxRowProps {
 }
 
 /**
- * Interactive 28x28 rounded checkbox row matching Figma Pickup & Delivery options.
+ * Interactive 28x28 rounded checkbox row built with native styling and vector check icon.
  */
 export function CheckboxRow({
   label,
@@ -26,15 +26,11 @@ export function CheckboxRow({
       onPress={onToggle}
       style={({ pressed }) => [styles.row, pressed && styles.pressed]}
     >
-      {checked ? (
-        <ExpoImage
-          source={require("../../../assets/images/marketlink/checkbox-checked.svg")}
-          style={styles.checkboxIcon}
-          contentFit="contain"
-        />
-      ) : (
-        <View style={styles.uncheckedBox} />
-      )}
+      <View style={[styles.box, checked && styles.boxChecked]}>
+        {checked && (
+          <Ionicons name="checkmark" size={18} color={colors.white} />
+        )}
+      </View>
 
       <Text style={[styles.label, compactText && styles.compactLabel]}>
         {label}
@@ -49,17 +45,19 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: spacing.xl,
   },
-  checkboxIcon: {
-    width: 28,
-    height: 28,
-  },
-  uncheckedBox: {
+  box: {
     width: 28,
     height: 28,
     borderRadius: 4,
     borderWidth: 1.5,
     borderColor: colors.textSecondary,
     backgroundColor: colors.white,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  boxChecked: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
   },
   label: {
     flex: 1,

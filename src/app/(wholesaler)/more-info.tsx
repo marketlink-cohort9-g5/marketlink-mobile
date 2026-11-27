@@ -1,9 +1,9 @@
-import { Image as ExpoImage } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { BackButton } from "@/components/ui/BackButton";
 import { FileUploadRow } from "@/components/ui/FileUploadRow";
 import { ContactSupportButton } from "@/components/wholesaler/ContactSupportButton";
 import { colors } from "@/theme/colors";
@@ -58,18 +58,7 @@ export default function WholesalerMoreInfoScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Back to Account */}
-        <Pressable
-          onPress={() => router.back()}
-          style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
-          hitSlop={8}
-        >
-          <ExpoImage
-            source={require("../../../assets/images/marketlink/arrow-left.svg")}
-            style={styles.backArrow}
-            contentFit="contain"
-          />
-          <Text style={styles.backText}>Account</Text>
-        </Pressable>
+        <BackButton label="Account" />
 
         {/* Application Status Header */}
         <View style={styles.card}>
@@ -137,22 +126,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     padding: spacing.xl,
     gap: spacing.lg,
-  },
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
-    gap: spacing.sm,
-    minHeight: 32,
-  },
-  backArrow: {
-    width: 17.25,
-    height: 16.69,
-  },
-  backText: {
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-    color: colors.text,
   },
   card: {
     width: "100%",

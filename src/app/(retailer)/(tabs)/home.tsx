@@ -1,4 +1,4 @@
-import { Image as ExpoImage } from "expo-image";
+import { Ionicons } from "@react-native-vector-icons/ionicons/static";
 import { router } from "expo-router";
 import {
   Alert,
@@ -77,10 +77,10 @@ export default function RetailerHomeScreen() {
           ]}
           onPress={handleSearch}
         >
-          <ExpoImage
-            source={require("../../../../assets/images/marketlink/search-icon.svg")}
-            style={styles.searchIcon}
-            contentFit="contain"
+          <Ionicons
+            name="search-outline"
+            size={20}
+            color={colors.textSecondary}
           />
           <Text style={styles.searchPlaceholder}>Search</Text>
         </Pressable>
@@ -204,10 +204,6 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingHorizontal: spacing.lg,
     backgroundColor: colors.white,
-  },
-  searchIcon: {
-    width: 20,
-    height: 20,
   },
   searchPlaceholder: {
     fontSize: typography.fontSize.body,

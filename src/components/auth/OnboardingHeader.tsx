@@ -1,7 +1,6 @@
-import { Image as ExpoImage } from "expo-image";
-import { router } from "expo-router";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 
+import { BackButton } from "@/components/ui/BackButton";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -26,8 +25,11 @@ export function OnboardingHeader({
   totalSteps,
   logoHeight = 100,
 }: OnboardingHeaderProps) {
-  const hasProgress = typeof step === "number" && typeof totalSteps === "number" && totalSteps > 0;
-  const progressPercent = hasProgress ? Math.min(100, Math.max(0, (step / totalSteps) * 100)) : 0;
+  const hasProgress =
+    typeof step === "number" && typeof totalSteps === "number" && totalSteps > 0;
+  const progressPercent = hasProgress
+    ? Math.min(100, Math.max(0, (step / totalSteps) * 100))
+    : 0;
 
   return (
     <View style={styles.wrapper}>
@@ -39,25 +41,14 @@ export function OnboardingHeader({
         />
       </View>
 
-      {showBack && (
-        <Pressable
-          onPress={onBackPress ?? (() => router.back())}
-          style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
-          hitSlop={8}
-        >
-          <ExpoImage
-            source={require("../../../assets/images/marketlink/arrow-left.svg")}
-            style={styles.backArrow}
-            contentFit="contain"
-          />
-          <Text style={styles.backText}>{backLabel}</Text>
-        </Pressable>
-      )}
+      {showBack && <BackButton label={backLabel} onPress={onBackPress} />}
 
       {hasProgress && (
         <View style={styles.progressSection}>
           <View style={styles.progressTrack}>
-            <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
+            <View
+              style={[styles.progressFill, { width: `${progressPercent}%` }]}
+            />
           </View>
           <Text style={styles.stepLabel}>
             Step {step} of {totalSteps}
@@ -80,22 +71,6 @@ const styles = StyleSheet.create({
   logo: {
     width: "100%",
   },
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
-    gap: spacing.sm,
-    minHeight: 32,
-  },
-  backArrow: {
-    width: 17.25,
-    height: 16.69,
-  },
-  backText: {
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-    color: colors.text,
-  },
   progressSection: {
     width: "100%",
     gap: spacing.md,
@@ -116,8 +91,5 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.subtitle,
     fontWeight: typography.fontWeight.semiBold,
     color: colors.primary,
-  },
-  pressed: {
-    opacity: 0.7,
   },
 });

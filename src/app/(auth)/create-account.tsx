@@ -1,4 +1,4 @@
-import { Image as ExpoImage } from "expo-image";
+import { Ionicons } from "@react-native-vector-icons/ionicons/static";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
@@ -169,10 +169,10 @@ export default function CreateAccountScreen() {
                 hitSlop={8}
                 style={styles.eyeButton}
               >
-                <ExpoImage
-                  source={require("../../../assets/images/marketlink/eye.svg")}
-                  style={[styles.eyeIcon, showPin && styles.eyeIconActive]}
-                  contentFit="contain"
+                <Ionicons
+                  name={showPin ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color={showPin ? colors.primary : colors.textLight}
                 />
               </Pressable>
             </View>
@@ -198,10 +198,10 @@ export default function CreateAccountScreen() {
                 hitSlop={8}
                 style={styles.eyeButton}
               >
-                <ExpoImage
-                  source={require("../../../assets/images/marketlink/eye.svg")}
-                  style={[styles.eyeIcon, showConfirmPin && styles.eyeIconActive]}
-                  contentFit="contain"
+                <Ionicons
+                  name={showConfirmPin ? "eye-off-outline" : "eye-outline"}
+                  size={20}
+                  color={showConfirmPin ? colors.primary : colors.textLight}
                 />
               </Pressable>
             </View>
@@ -316,13 +316,6 @@ const styles = StyleSheet.create({
     paddingLeft: spacing.sm,
     justifyContent: "center",
     alignItems: "center",
-  },
-  eyeIcon: {
-    width: 20,
-    height: 20,
-  },
-  eyeIconActive: {
-    opacity: 0.5,
   },
   termsRow: {
     flexDirection: "row",

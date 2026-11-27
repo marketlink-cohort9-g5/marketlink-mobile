@@ -1,17 +1,21 @@
-import { Image as ExpoImage, type ImageProps } from "expo-image";
+import {
+  Ionicons,
+  type IoniconsIconName,
+} from "@react-native-vector-icons/ionicons/static";
 import { Tabs } from "expo-router";
-import { type ImageStyle, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors } from "@/theme/colors";
 
-function renderTabIcon(source: ImageProps["source"], iconStyle: ImageStyle) {
+function renderTabIcon(
+  activeName: IoniconsIconName,
+  inactiveName: IoniconsIconName,
+) {
   return ({ focused }: { focused: boolean }) => (
-    <ExpoImage
-      source={source}
-      style={[iconStyle, !focused && styles.inactiveIcon]}
-      tintColor={focused ? colors.primary : colors.textSecondary}
-      contentFit="contain"
+    <Ionicons
+      name={focused ? activeName : inactiveName}
+      size={22}
+      color={focused ? colors.primary : colors.textSecondary}
     />
   );
 }
@@ -47,10 +51,7 @@ export default function RetailerTabsLayout() {
         name="home"
         options={{
           title: "Home",
-          tabBarIcon: renderTabIcon(
-            require("../../../../assets/images/marketlink/tab-home.svg"),
-            styles.homeIcon,
-          ),
+          tabBarIcon: renderTabIcon("home", "home-outline"),
         }}
       />
 
@@ -58,10 +59,7 @@ export default function RetailerTabsLayout() {
         name="search"
         options={{
           title: "Search",
-          tabBarIcon: renderTabIcon(
-            require("../../../../assets/images/marketlink/tab-search.svg"),
-            styles.squareIcon,
-          ),
+          tabBarIcon: renderTabIcon("search", "search-outline"),
         }}
       />
 
@@ -69,10 +67,7 @@ export default function RetailerTabsLayout() {
         name="orders"
         options={{
           title: "Orders",
-          tabBarIcon: renderTabIcon(
-            require("../../../../assets/images/marketlink/tab-orders.svg"),
-            styles.squareIcon,
-          ),
+          tabBarIcon: renderTabIcon("bag", "bag-outline"),
         }}
       />
 
@@ -80,30 +75,9 @@ export default function RetailerTabsLayout() {
         name="profile"
         options={{
           title: "Profile",
-          tabBarIcon: renderTabIcon(
-            require("../../../../assets/images/marketlink/tab-profile.svg"),
-            styles.profileIcon,
-          ),
+          tabBarIcon: renderTabIcon("person", "person-outline"),
         }}
       />
     </Tabs>
   );
 }
-
-const styles = StyleSheet.create({
-  homeIcon: {
-    width: 20,
-    height: 20.24,
-  },
-  squareIcon: {
-    width: 22,
-    height: 22,
-  },
-  profileIcon: {
-    width: 16,
-    height: 19,
-  },
-  inactiveIcon: {
-    opacity: 0.75,
-  },
-});

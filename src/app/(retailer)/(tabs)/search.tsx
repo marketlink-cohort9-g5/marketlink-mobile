@@ -1,4 +1,4 @@
-import { Image as ExpoImage } from "expo-image";
+import { Ionicons } from "@react-native-vector-icons/ionicons/static";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import {
@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { BackButton } from "@/components/ui/BackButton";
 import { searchResults } from "@/mocks/retailerCatalogue";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
@@ -71,7 +72,7 @@ export default function SearchScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Back Row */}
-        <Pressable
+        <BackButton
           onPress={() => {
             if (router.canGoBack()) {
               router.back();
@@ -79,23 +80,14 @@ export default function SearchScreen() {
               router.replace("/(retailer)/(tabs)/home");
             }
           }}
-          style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
-          hitSlop={8}
-        >
-          <ExpoImage
-            source={require("../../../../assets/images/marketlink/arrow-left.svg")}
-            style={styles.backArrow}
-            contentFit="contain"
-          />
-          <Text style={styles.backText}>Back</Text>
-        </Pressable>
+        />
 
         {/* Search Input */}
         <View style={styles.searchContainer}>
-          <ExpoImage
-            source={require("../../../../assets/images/marketlink/search-icon.svg")}
-            style={styles.searchIcon}
-            contentFit="contain"
+          <Ionicons
+            name="search-outline"
+            size={20}
+            color={colors.textSecondary}
           />
           <TextInput
             style={styles.searchInput}
@@ -164,10 +156,10 @@ export default function SearchScreen() {
 
                 <View style={styles.wholesalerBadge}>
                   <Text style={styles.wholesalerCount}>3 Wholesalers</Text>
-                  <ExpoImage
-                    source={require("../../../../assets/images/marketlink/chevron-right.svg")}
-                    style={styles.chevronRight}
-                    contentFit="contain"
+                  <Ionicons
+                    name="chevron-forward"
+                    size={16}
+                    color={colors.primary}
                   />
                 </View>
               </View>
@@ -225,22 +217,6 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.xxl,
     gap: spacing.lg,
   },
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
-    gap: spacing.sm,
-    minHeight: 32,
-  },
-  backArrow: {
-    width: 17.25,
-    height: 16.69,
-  },
-  backText: {
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-    color: colors.text,
-  },
   searchContainer: {
     width: "100%",
     height: 44,
@@ -252,10 +228,6 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingHorizontal: spacing.lg,
     backgroundColor: colors.white,
-  },
-  searchIcon: {
-    width: 20,
-    height: 20,
   },
   searchInput: {
     flex: 1,
@@ -319,10 +291,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.caption,
     fontWeight: typography.fontWeight.bold,
     color: colors.primary,
-  },
-  chevronRight: {
-    width: 6,
-    height: 12,
   },
   packText: {
     fontSize: typography.fontSize.caption,

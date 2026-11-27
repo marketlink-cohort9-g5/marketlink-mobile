@@ -1,4 +1,4 @@
-import { Image as ExpoImage } from "expo-image";
+import { Ionicons } from "@react-native-vector-icons/ionicons/static";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import {
@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { BackButton } from "@/components/ui/BackButton";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -83,18 +84,7 @@ export default function WholesalerAddProductScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Pressable
-            onPress={() => router.back()}
-            style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
-            hitSlop={8}
-          >
-            <ExpoImage
-              source={require("../../../assets/images/marketlink/arrow-left.svg")}
-              style={styles.backArrow}
-              contentFit="contain"
-            />
-            <Text style={styles.backText}>Back</Text>
-          </Pressable>
+          <BackButton />
 
           <View style={styles.card}>
             <Text style={styles.heading}>Add a Product</Text>
@@ -104,10 +94,10 @@ export default function WholesalerAddProductScreen() {
           </View>
 
           <View style={styles.searchContainer}>
-            <ExpoImage
-              source={require("../../../assets/images/marketlink/search-icon.svg")}
-              style={styles.searchIcon}
-              contentFit="contain"
+            <Ionicons
+              name="search-outline"
+              size={20}
+              color={colors.textSecondary}
             />
             <TextInput
               style={styles.searchInput}
@@ -216,22 +206,6 @@ const styles = StyleSheet.create({
     padding: spacing.xl,
     gap: spacing.lg,
   },
-  backButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
-    gap: spacing.sm,
-    minHeight: 32,
-  },
-  backArrow: {
-    width: 17.25,
-    height: 16.69,
-  },
-  backText: {
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-    color: colors.text,
-  },
   card: {
     width: "100%",
     backgroundColor: colors.white,
@@ -265,10 +239,6 @@ const styles = StyleSheet.create({
     gap: 10,
     paddingHorizontal: spacing.lg,
     backgroundColor: colors.white,
-  },
-  searchIcon: {
-    width: 20,
-    height: 20,
   },
   searchInput: {
     flex: 1,
