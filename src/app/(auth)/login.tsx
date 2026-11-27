@@ -4,17 +4,18 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { CodeBoxInput } from "@/components/auth/CodeBoxInput";
 import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
+import { AppButton } from "@/components/ui/AppButton";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -93,26 +94,24 @@ export default function LoginScreen() {
             />
           </View>
 
-          <Pressable onPress={() => router.push("/(auth)/reset-pin")}>
+          <TouchableOpacity
+            activeOpacity={0.75}
+            onPress={() => router.push("/(auth)/reset-pin")}
+          >
             <Text style={styles.forgotText}>Forgot Your Password?</Text>
-          </Pressable>
+          </TouchableOpacity>
 
           <View style={styles.bottomSection}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.primaryButton,
-                pressed && styles.pressed,
-              ]}
-              onPress={handleLogin}
-            >
-              <Text style={styles.primaryButtonText}>Log In</Text>
-            </Pressable>
+            <AppButton title="Log In" onPress={handleLogin} />
 
             <View style={styles.footer}>
               <Text style={styles.footerText}>New to MarketLink? </Text>
-              <Pressable onPress={() => router.push("/(auth)/onboarding")}>
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() => router.push("/(auth)/onboarding")}
+              >
                 <Text style={styles.createAccountText}>Create Account</Text>
-              </Pressable>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
@@ -186,20 +185,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     alignItems: "center",
   },
-  primaryButton: {
-    width: "100%",
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  primaryButtonText: {
-    color: colors.white,
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-  },
   footer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -213,8 +198,5 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontSize: typography.fontSize.body,
     fontWeight: typography.fontWeight.bold,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

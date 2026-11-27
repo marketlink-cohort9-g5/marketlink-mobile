@@ -3,11 +3,11 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import {
   Alert,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -109,8 +109,9 @@ export default function SearchScreen() {
             const isSelected = selectedFilter === filter;
 
             return (
-              <Pressable
+              <TouchableOpacity
                 key={filter}
+                activeOpacity={0.8}
                 style={[
                   styles.filterButton,
                   isSelected && styles.selectedFilter,
@@ -125,7 +126,7 @@ export default function SearchScreen() {
                 >
                   {filter}
                 </Text>
-              </Pressable>
+              </TouchableOpacity>
             );
           })}
         </ScrollView>
@@ -138,12 +139,10 @@ export default function SearchScreen() {
         {/* Product Comparison Cards */}
         <View style={styles.productList}>
           {sortedWholesalers.map((item) => (
-            <Pressable
+            <TouchableOpacity
               key={item.id}
-              style={({ pressed }) => [
-                styles.productCard,
-                pressed && styles.pressed,
-              ]}
+              activeOpacity={0.85}
+              style={styles.productCard}
               onPress={() =>
                 Alert.alert(
                   item.wholesaler,
@@ -183,18 +182,19 @@ export default function SearchScreen() {
                   Best price at {item.wholesaler}. updated {item.updated}
                 </Text>
               )}
-            </Pressable>
+            </TouchableOpacity>
           ))}
         </View>
 
         {/* Request Product Link */}
-        <Pressable
+        <TouchableOpacity
+          activeOpacity={0.75}
           style={styles.requestRow}
           onPress={handleRequestProduct}
         >
           <Text style={styles.requestPrefix}>Can&apos;t find it? </Text>
           <Text style={styles.requestLink}>Tell us what you need</Text>
-        </Pressable>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -334,8 +334,5 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.caption,
     fontWeight: typography.fontWeight.bold,
     color: colors.primary,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

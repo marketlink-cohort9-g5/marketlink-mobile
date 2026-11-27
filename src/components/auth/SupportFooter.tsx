@@ -1,4 +1,4 @@
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { colors } from "@/theme/colors";
 import { typography } from "@/theme/typography";
@@ -17,9 +17,9 @@ export function SupportFooter() {
   return (
     <View style={styles.supportRow}>
       <Text style={styles.supportText}>Having trouble? </Text>
-      <Pressable onPress={handleSupport}>
+      <TouchableOpacity activeOpacity={0.75} onPress={handleSupport}>
         <Text style={styles.supportLink}>Contact support</Text>
-      </Pressable>
+      </TouchableOpacity>
       <Text style={styles.supportText}>.</Text>
     </View>
   );

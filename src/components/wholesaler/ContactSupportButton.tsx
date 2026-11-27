@@ -1,4 +1,4 @@
-import { Alert, Pressable, StyleSheet, Text } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
 
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
@@ -16,12 +16,13 @@ export function ContactSupportButton() {
   };
 
   return (
-    <Pressable
+    <TouchableOpacity
+      activeOpacity={0.8}
       onPress={handleSupport}
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      style={styles.button}
     >
       <Text style={styles.label}>Contact Support</Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
@@ -42,8 +43,5 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.body,
     fontWeight: typography.fontWeight.semiBold,
     color: colors.text,
-  },
-  pressed: {
-    opacity: 0.8,
   },
 });

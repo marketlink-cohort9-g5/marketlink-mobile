@@ -1,5 +1,5 @@
 import { Ionicons } from "@react-native-vector-icons/ionicons/static";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
@@ -22,9 +22,10 @@ export function CheckboxRow({
   compactText = false,
 }: CheckboxRowProps) {
   return (
-    <Pressable
+    <TouchableOpacity
+      activeOpacity={0.75}
       onPress={onToggle}
-      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      style={styles.row}
     >
       <View style={[styles.box, checked && styles.boxChecked]}>
         {checked && (
@@ -35,7 +36,7 @@ export function CheckboxRow({
       <Text style={[styles.label, compactText && styles.compactLabel]}>
         {label}
       </Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
@@ -67,8 +68,5 @@ const styles = StyleSheet.create({
   },
   compactLabel: {
     fontSize: 18,
-  },
-  pressed: {
-    opacity: 0.75,
   },
 });

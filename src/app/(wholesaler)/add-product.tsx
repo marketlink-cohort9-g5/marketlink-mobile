@@ -5,15 +5,16 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AppButton } from "@/components/ui/AppButton";
 import { BackButton } from "@/components/ui/BackButton";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
@@ -111,18 +112,20 @@ export default function WholesalerAddProductScreen() {
           {filteredTemplates.map((item) => {
             const isSelected = item.id === selectedId;
             return (
-              <Pressable
+              <TouchableOpacity
                 key={item.id}
+                activeOpacity={0.85}
                 onPress={() => setSelectedId(item.id)}
                 style={[styles.card, isSelected && styles.cardSelected]}
               >
                 <Text style={styles.productTitle}>{item.name}</Text>
                 <Text style={styles.productPack}>{item.pack}</Text>
-              </Pressable>
+              </TouchableOpacity>
             );
           })}
 
-          <Pressable
+          <TouchableOpacity
+            activeOpacity={0.75}
             onPress={() =>
               Alert.alert(
                 "Request Product",
@@ -131,9 +134,10 @@ export default function WholesalerAddProductScreen() {
             }
           >
             <Text style={styles.requestText}>
-              Cannot find it? <Text style={styles.requestLink}>Request a new product</Text>
+              Cannot find it?{" "}
+              <Text style={styles.requestLink}>Request a new product</Text>
             </Text>
-          </Pressable>
+          </TouchableOpacity>
 
           <View style={styles.card}>
             <Text style={styles.pricingTitle}>Your price and stock</Text>
@@ -171,15 +175,7 @@ export default function WholesalerAddProductScreen() {
             </View>
           </View>
 
-          <Pressable
-            style={({ pressed }) => [
-              styles.saveButton,
-              pressed && styles.pressed,
-            ]}
-            onPress={handleSaveProduct}
-          >
-            <Text style={styles.saveButtonText}>Save Product</Text>
-          </Pressable>
+          <AppButton title="Save Product" onPress={handleSaveProduct} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -295,21 +291,5 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.body,
     color: colors.text,
     backgroundColor: colors.white,
-  },
-  saveButton: {
-    width: "100%",
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  saveButtonText: {
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-    color: colors.white,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

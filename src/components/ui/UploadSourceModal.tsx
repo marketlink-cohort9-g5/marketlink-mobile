@@ -1,5 +1,5 @@
 import { Ionicons } from "@react-native-vector-icons/ionicons/static";
-import { Modal, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { Modal, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
@@ -80,7 +80,8 @@ export function UploadSourceModal({
         >
           <View style={styles.header}>
             <Text style={styles.title}>{title}</Text>
-            <Pressable
+            <TouchableOpacity
+              activeOpacity={0.7}
               onPress={onClose}
               hitSlop={8}
               accessibilityRole="button"
@@ -88,20 +89,18 @@ export function UploadSourceModal({
               style={styles.closeButton}
             >
               <Ionicons name="close-outline" size={22} color={colors.textSecondary} />
-            </Pressable>
+            </TouchableOpacity>
           </View>
 
           <Text style={styles.subtitle}>{subtitle}</Text>
 
           <View style={styles.optionsList}>
             {SOURCE_ITEMS.map((item) => (
-              <Pressable
+              <TouchableOpacity
                 key={item.source}
+                activeOpacity={0.78}
                 onPress={() => handlePickSource(item.source)}
-                style={({ pressed }) => [
-                  styles.optionRow,
-                  pressed && styles.pressed,
-                ]}
+                style={styles.optionRow}
               >
                 <View style={styles.optionIcon}>
                   <Ionicons name={item.icon} size={20} color={colors.primary} />
@@ -111,19 +110,17 @@ export function UploadSourceModal({
                   <Text style={styles.optionLabel}>{item.label}</Text>
                   <Text style={styles.optionDescription}>{item.description}</Text>
                 </View>
-              </Pressable>
+              </TouchableOpacity>
             ))}
           </View>
 
-          <Pressable
+          <TouchableOpacity
+            activeOpacity={0.78}
             onPress={onClose}
-            style={({ pressed }) => [
-              styles.cancelButton,
-              pressed && styles.pressed,
-            ]}
+            style={styles.cancelButton}
           >
             <Text style={styles.cancelText}>Cancel</Text>
-          </Pressable>
+          </TouchableOpacity>
         </Pressable>
       </Pressable>
     </Modal>
@@ -214,8 +211,5 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.body,
     fontWeight: typography.fontWeight.semiBold,
     color: colors.textSecondary,
-  },
-  pressed: {
-    opacity: 0.78,
   },
 });

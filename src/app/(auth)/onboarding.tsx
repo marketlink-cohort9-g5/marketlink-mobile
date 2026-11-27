@@ -4,15 +4,16 @@ import {
   Alert,
   Image,
   type ImageSourcePropType,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
+import { AppButton } from "@/components/ui/AppButton";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -87,8 +88,9 @@ export default function OnboardingAccountTypeScreen() {
         {ACCOUNT_OPTIONS.map((option) => {
           const isSelected = selectedRole === option.id;
           return (
-            <Pressable
+            <TouchableOpacity
               key={option.id}
+              activeOpacity={0.85}
               onPress={() => setSelectedRole(option.id)}
               style={styles.optionBlock}
             >
@@ -107,19 +109,15 @@ export default function OnboardingAccountTypeScreen() {
 
               <Text style={styles.optionTitle}>{option.title}</Text>
               <Text style={styles.optionDescription}>{option.description}</Text>
-            </Pressable>
+            </TouchableOpacity>
           );
         })}
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.primaryButton,
-            pressed && styles.pressed,
-          ]}
+        <AppButton
+          title={buttonLabel}
+          style={styles.buttonSpacing}
           onPress={handleContinue}
-        >
-          <Text style={styles.primaryButtonText}>{buttonLabel}</Text>
-        </Pressable>
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -188,22 +186,7 @@ const styles = StyleSheet.create({
     color: colors.text,
     lineHeight: 22,
   },
-  primaryButton: {
-    width: "100%",
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    alignItems: "center",
-    justifyContent: "center",
+  buttonSpacing: {
     marginTop: spacing.xs,
-  },
-  primaryButtonText: {
-    color: colors.white,
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

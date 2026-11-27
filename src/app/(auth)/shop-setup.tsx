@@ -4,16 +4,17 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
+import { AppButton } from "@/components/ui/AppButton";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -79,7 +80,8 @@ export default function ShopSetupScreen() {
           <View style={styles.field}>
             <Text style={styles.label}>Shop Type</Text>
 
-            <Pressable
+            <TouchableOpacity
+              activeOpacity={0.85}
               style={styles.dropdown}
               onPress={() => setShowShopTypes((prev) => !prev)}
             >
@@ -98,13 +100,14 @@ export default function ShopSetupScreen() {
                   showShopTypes && styles.chevronOpen,
                 ]}
               />
-            </Pressable>
+            </TouchableOpacity>
 
             {showShopTypes && (
               <View style={styles.dropdownOptions}>
                 {SHOP_TYPES.map((type, index) => (
-                  <Pressable
+                  <TouchableOpacity
                     key={type}
+                    activeOpacity={0.75}
                     style={[
                       styles.dropdownOption,
                       index === SHOP_TYPES.length - 1 && styles.dropdownOptionLast,
@@ -122,7 +125,7 @@ export default function ShopSetupScreen() {
                     >
                       {type}
                     </Text>
-                  </Pressable>
+                  </TouchableOpacity>
                 ))}
               </View>
             )}
@@ -143,25 +146,15 @@ export default function ShopSetupScreen() {
             You can complete this later from your profile.
           </Text>
 
-          <Pressable
-            style={({ pressed }) => [
-              styles.saveButton,
-              pressed && styles.pressed,
-            ]}
-            onPress={handleSave}
-          >
-            <Text style={styles.saveButtonText}>Save &amp; Continue</Text>
-          </Pressable>
+          <AppButton title="Save & Continue" onPress={handleSave} />
 
-          <Pressable
-            style={({ pressed }) => [
-              styles.skipButton,
-              pressed && styles.pressed,
-            ]}
+          <TouchableOpacity
+            activeOpacity={0.75}
+            style={styles.skipButton}
             onPress={handleSkip}
           >
             <Text style={styles.skipButtonText}>Skip for now.</Text>
-          </Pressable>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -279,20 +272,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.body,
     color: colors.textLight,
   },
-  saveButton: {
-    width: "100%",
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  saveButtonText: {
-    color: colors.white,
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-  },
   skipButton: {
     paddingVertical: spacing.xs,
   },
@@ -300,8 +279,5 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.subtitle,
     fontWeight: typography.fontWeight.semiBold,
     color: colors.primary,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

@@ -1,5 +1,5 @@
 import { Ionicons } from "@react-native-vector-icons/ionicons/static";
-import { Image, Pressable, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
@@ -35,15 +35,15 @@ export function FileUploadRow({
 
   return (
     <View style={styles.wrapper}>
-      <Pressable
+      <TouchableOpacity
+        activeOpacity={0.85}
         onPress={onPress}
         disabled={loading}
         accessibilityRole="button"
         accessibilityLabel={`${actionLabel}: ${fileLabel || placeholder}`}
-        style={({ pressed }) => [
+        style={[
           styles.container,
           Boolean(error) && styles.containerError,
-          pressed && styles.pressed,
         ]}
       >
         <View style={styles.leftContent}>
@@ -78,7 +78,7 @@ export function FileUploadRow({
             {loading ? "Opening..." : actionLabel}
           </Text>
         </View>
-      </Pressable>
+      </TouchableOpacity>
 
       {error ? (
         <View style={styles.errorRow}>
@@ -170,8 +170,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     lineHeight: 18,
     color: colors.error,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

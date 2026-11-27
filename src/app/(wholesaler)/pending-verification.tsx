@@ -1,7 +1,8 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AppButton } from "@/components/ui/AppButton";
 import { ContactSupportButton } from "@/components/wholesaler/ContactSupportButton";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
@@ -72,20 +73,17 @@ export default function WholesalerPendingVerificationScreen() {
             Add your products and prices now, so your store is ready the moment
             it is approved.
           </Text>
-          <Pressable
-            style={({ pressed }) => [
-              styles.addProductsButton,
-              pressed && styles.pressed,
-            ]}
+          <AppButton
+            title="Add Products"
+            style={styles.addProductsSpacing}
             onPress={() => router.push("/(wholesaler)/add-product")}
-          >
-            <Text style={styles.addProductsText}>Add Products</Text>
-          </Pressable>
+          />
         </View>
 
         {/* More Information Notice (tappable to view More Info Needed state) */}
-        <Pressable
-          style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={styles.card}
           onPress={() =>
             router.push({
               pathname: "/(wholesaler)/more-info",
@@ -97,7 +95,7 @@ export default function WholesalerPendingVerificationScreen() {
             If we need more information, we will message you here. For example:
             a clearer photo of your shop.
           </Text>
-        </Pressable>
+        </TouchableOpacity>
 
         <ContactSupportButton />
       </ScrollView>
@@ -233,26 +231,12 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: colors.textSecondary,
   },
-  addProductsButton: {
-    width: "100%",
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: "center",
-    justifyContent: "center",
+  addProductsSpacing: {
     marginTop: spacing.xs,
-  },
-  addProductsText: {
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-    color: colors.white,
   },
   infoNoticeText: {
     fontSize: typography.fontSize.body,
     lineHeight: 22,
     color: colors.text,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

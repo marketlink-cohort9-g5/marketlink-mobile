@@ -1,7 +1,8 @@
 import { router } from "expo-router";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AppButton } from "@/components/ui/AppButton";
 import { useAppDispatch, useCartItems } from "@/store/hooks";
 import { clearCart, removeFromCart } from "@/store/slices/cartSlice";
 import { colors } from "@/theme/colors";
@@ -52,12 +53,12 @@ export default function RetailerOrdersScreen() {
               Browse products from wholesalers on the Home or Search tabs to
               start an order.
             </Text>
-            <Pressable
-              style={styles.browseButton}
+            <AppButton
+              title="Browse Products"
+              size="sm"
+              fullWidth={false}
               onPress={() => router.push("/(retailer)/(tabs)/home")}
-            >
-              <Text style={styles.browseButtonText}>Browse Products</Text>
-            </Pressable>
+            />
           </View>
         ) : (
           <>
@@ -74,12 +75,13 @@ export default function RetailerOrdersScreen() {
                     </Text>
                   </View>
 
-                  <Pressable
+                  <TouchableOpacity
+                    activeOpacity={0.75}
                     onPress={() => dispatch(removeFromCart(item.id))}
                     style={styles.removeButton}
                   >
                     <Text style={styles.removeText}>Remove</Text>
-                  </Pressable>
+                  </TouchableOpacity>
                 </View>
               ))}
             </View>
@@ -90,9 +92,7 @@ export default function RetailerOrdersScreen() {
                 <Text style={styles.totalValue}>{formatCurrency(totalAmount)}</Text>
               </View>
 
-              <Pressable style={styles.checkoutButton} onPress={handleCheckout}>
-                <Text style={styles.checkoutButtonText}>Place Order</Text>
-              </Pressable>
+              <AppButton title="Place Order" onPress={handleCheckout} />
             </View>
           </>
         )}
@@ -139,17 +139,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.body,
     color: colors.textSecondary,
     lineHeight: 22,
-  },
-  browseButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: spacing.xl,
-  },
-  browseButtonText: {
-    color: colors.white,
-    fontSize: typography.fontSize.body,
-    fontWeight: typography.fontWeight.semiBold,
   },
   list: {
     gap: spacing.md,
@@ -210,16 +199,5 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.title,
     fontWeight: typography.fontWeight.bold,
     color: colors.primary,
-  },
-  checkoutButton: {
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
-    alignItems: "center",
-  },
-  checkoutButtonText: {
-    color: colors.white,
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
   },
 });

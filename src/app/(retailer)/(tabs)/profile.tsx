@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { colors } from "@/theme/colors";
@@ -24,19 +24,21 @@ export default function RetailerProfileScreen() {
           <Text style={styles.shopMeta}>Provision Store · Jakande</Text>
         </View>
 
-        <Pressable
+        <TouchableOpacity
+          activeOpacity={0.85}
           style={styles.actionButton}
           onPress={() => router.push("/(auth)/shop-setup")}
         >
           <Text style={styles.actionButtonText}>Edit Shop Details</Text>
-        </Pressable>
+        </TouchableOpacity>
 
-        <Pressable
+        <TouchableOpacity
+          activeOpacity={0.85}
           style={styles.logoutButton}
           onPress={() => router.replace("/(auth)/login")}
         >
           <Text style={styles.logoutButtonText}>Log Out</Text>
-        </Pressable>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

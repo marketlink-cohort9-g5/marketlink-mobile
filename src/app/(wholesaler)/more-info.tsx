@@ -3,14 +3,15 @@ import { useState } from "react";
 import {
   Alert,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AppButton } from "@/components/ui/AppButton";
 import { BackButton } from "@/components/ui/BackButton";
 import { FileUploadRow } from "@/components/ui/FileUploadRow";
 import { ContactSupportButton } from "@/components/wholesaler/ContactSupportButton";
@@ -110,14 +111,14 @@ export default function WholesalerMoreInfoScreen() {
             onPress={() => void shopPhoto.captureFromCamera()}
           />
           {shopPhoto.cameraUnavailable ? (
-            <Pressable
+            <TouchableOpacity
+              activeOpacity={0.75}
               onPress={() => void shopPhoto.chooseFromLibrary()}
-              style={({ pressed }) => pressed && styles.pressed}
             >
               <Text style={styles.fallbackLink}>
                 Choose shop photo from library instead
               </Text>
-            </Pressable>
+            </TouchableOpacity>
           ) : null}
         </View>
 
@@ -126,15 +127,10 @@ export default function WholesalerMoreInfoScreen() {
             <Text style={styles.submitError}>{submitError}</Text>
           ) : null}
 
-          <Pressable
-            style={({ pressed }) => [
-              styles.submitButton,
-              pressed && styles.pressed,
-            ]}
+          <AppButton
+            title="Send updated details"
             onPress={handleSendDetails}
-          >
-            <Text style={styles.submitButtonText}>Send updated details</Text>
-          </Pressable>
+          />
 
           <ContactSupportButton />
         </View>
@@ -218,22 +214,5 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.caption,
     color: colors.error,
     fontWeight: typography.fontWeight.medium,
-  },
-  submitButton: {
-    width: "100%",
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  submitButtonText: {
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-    color: colors.white,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

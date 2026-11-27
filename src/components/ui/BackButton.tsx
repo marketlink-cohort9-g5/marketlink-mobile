@@ -1,6 +1,6 @@
 import { Ionicons } from "@react-native-vector-icons/ionicons/static";
 import { router } from "expo-router";
-import { Pressable, StyleSheet, Text } from "react-native";
+import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
@@ -16,14 +16,15 @@ interface BackButtonProps {
  */
 export function BackButton({ label = "Back", onPress }: BackButtonProps) {
   return (
-    <Pressable
+    <TouchableOpacity
+      activeOpacity={0.7}
       onPress={onPress ?? (() => router.back())}
-      style={({ pressed }) => [styles.button, pressed && styles.pressed]}
+      style={styles.button}
       hitSlop={8}
     >
       <Ionicons name="arrow-back" size={20} color={colors.text} />
       <Text style={styles.label}>{label}</Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
 
@@ -39,8 +40,5 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.subtitle,
     fontWeight: typography.fontWeight.semiBold,
     color: colors.text,
-  },
-  pressed: {
-    opacity: 0.7,
   },
 });

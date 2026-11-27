@@ -5,16 +5,17 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
+import { AppButton } from "@/components/ui/AppButton";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -99,7 +100,12 @@ export default function CreateAccountScreen() {
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <OnboardingHeader showBack={false} step={1} totalSteps={totalSteps} logoHeight={100} />
+          <OnboardingHeader
+            showBack={false}
+            step={1}
+            totalSteps={totalSteps}
+            logoHeight={100}
+          />
 
           <Text style={styles.heading}>Create Your Account</Text>
 
@@ -164,7 +170,8 @@ export default function CreateAccountScreen() {
                 secureTextEntry={!showPin}
                 maxLength={4}
               />
-              <Pressable
+              <TouchableOpacity
+                activeOpacity={0.7}
                 onPress={() => setShowPin((prev) => !prev)}
                 hitSlop={8}
                 style={styles.eyeButton}
@@ -174,7 +181,7 @@ export default function CreateAccountScreen() {
                   size={20}
                   color={showPin ? colors.primary : colors.textLight}
                 />
-              </Pressable>
+              </TouchableOpacity>
             </View>
           </View>
 
@@ -193,7 +200,8 @@ export default function CreateAccountScreen() {
                 secureTextEntry={!showConfirmPin}
                 maxLength={4}
               />
-              <Pressable
+              <TouchableOpacity
+                activeOpacity={0.7}
                 onPress={() => setShowConfirmPin((prev) => !prev)}
                 hitSlop={8}
                 style={styles.eyeButton}
@@ -203,11 +211,12 @@ export default function CreateAccountScreen() {
                   size={20}
                   color={showConfirmPin ? colors.primary : colors.textLight}
                 />
-              </Pressable>
+              </TouchableOpacity>
             </View>
           </View>
 
-          <Pressable
+          <TouchableOpacity
+            activeOpacity={0.75}
             style={styles.termsRow}
             onPress={() => setAgreedToTerms((prev) => !prev)}
           >
@@ -222,17 +231,13 @@ export default function CreateAccountScreen() {
             <Text style={styles.termsText}>
               I agree to the Terms and Privacy Policy
             </Text>
-          </Pressable>
+          </TouchableOpacity>
 
-          <Pressable
-            style={({ pressed }) => [
-              styles.submitButton,
-              pressed && styles.pressed,
-            ]}
+          <AppButton
+            title="Create Account"
+            variant="secondary"
             onPress={handleCreateAccount}
-          >
-            <Text style={styles.submitButtonText}>Create Account</Text>
-          </Pressable>
+          />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -345,22 +350,5 @@ const styles = StyleSheet.create({
   termsText: {
     fontSize: typography.fontSize.caption,
     color: colors.textSecondary,
-  },
-  submitButton: {
-    width: "100%",
-    backgroundColor: colors.white,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  submitButtonText: {
-    color: colors.primary,
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

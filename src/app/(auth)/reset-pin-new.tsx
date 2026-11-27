@@ -4,7 +4,6 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { CodeBoxInput } from "@/components/auth/CodeBoxInput";
 import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
+import { AppButton } from "@/components/ui/AppButton";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -86,15 +86,7 @@ export default function ResetPinNewScreen() {
           </View>
 
           <View style={styles.bottomSection}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.saveButton,
-                pressed && styles.pressed,
-              ]}
-              onPress={handleSavePassword}
-            >
-              <Text style={styles.saveButtonText}>Save Password</Text>
-            </Pressable>
+            <AppButton title="Save Password" onPress={handleSavePassword} />
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -145,22 +137,5 @@ const styles = StyleSheet.create({
     width: "100%",
     marginTop: "auto",
     paddingTop: spacing.xl,
-  },
-  saveButton: {
-    width: "100%",
-    borderRadius: 8,
-    backgroundColor: colors.primary,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  saveButtonText: {
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-    color: colors.white,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

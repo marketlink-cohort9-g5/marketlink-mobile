@@ -1,11 +1,11 @@
 import { router } from "expo-router";
-import { Image, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AppButton } from "@/components/ui/AppButton";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
-
 
 export default function WelcomeScreen() {
   return (
@@ -45,28 +45,19 @@ export default function WelcomeScreen() {
         </Text>
 
         {/* Primary Action */}
-        <Pressable
-          style={({ pressed }) => [
-            styles.primaryButton,
-            pressed && styles.pressed,
-          ]}
+        <AppButton
+          title="Get Started"
           onPress={() => router.push("/(auth)/onboarding")}
-        >
-          <Text style={styles.primaryButtonText}>Get Started</Text>
-        </Pressable>
+        />
 
         {/* Sign In Section */}
         <Text style={styles.accountText}>Already have an account?</Text>
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.secondaryButton,
-            pressed && styles.pressed,
-          ]}
+        <AppButton
+          title="Sign In"
+          variant="outline"
           onPress={() => router.push("/(auth)/login")}
-        >
-          <Text style={styles.secondaryButtonText}>Sign In</Text>
-        </Pressable>
+        />
       </ScrollView>
     </SafeAreaView>
   );
@@ -134,48 +125,10 @@ const styles = StyleSheet.create({
     width: "100%",
   },
 
-  primaryButton: {
-    width: "100%",
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  primaryButtonText: {
-    color: colors.white,
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-  },
-
   accountText: {
     fontSize: typography.fontSize.body,
     fontWeight: typography.fontWeight.regular,
     color: colors.text,
     textAlign: "left",
-  },
-
-  secondaryButton: {
-    width: "100%",
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  secondaryButtonText: {
-    color: colors.primary,
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-  },
-
-  pressed: {
-    opacity: 0.85,
   },
 });

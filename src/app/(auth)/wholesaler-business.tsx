@@ -4,16 +4,17 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
+import { AppButton } from "@/components/ui/AppButton";
 import { FileUploadRow } from "@/components/ui/FileUploadRow";
 import {
   UploadSourceModal,
@@ -224,14 +225,14 @@ export default function WholesalerBusinessScreen() {
               onPress={() => void shopPhoto.captureFromCamera()}
             />
             {shopPhoto.cameraUnavailable ? (
-              <Pressable
+              <TouchableOpacity
+                activeOpacity={0.75}
                 onPress={() => void shopPhoto.chooseFromLibrary()}
-                style={({ pressed }) => pressed && styles.pressed}
               >
                 <Text style={styles.fallbackLink}>
                   Choose shop photo from library instead
                 </Text>
-              </Pressable>
+              </TouchableOpacity>
             ) : null}
             <Text style={styles.photoHint}>
               JPG or PNG (PDF allowed for ID), maximum 5MB.
@@ -240,15 +241,11 @@ export default function WholesalerBusinessScreen() {
 
           {formError ? <Text style={styles.formError}>{formError}</Text> : null}
 
-          <Pressable
-            style={({ pressed }) => [
-              styles.continueButton,
-              pressed && styles.pressed,
-            ]}
+          <AppButton
+            title="Continue"
+            style={styles.continueSpacing}
             onPress={handleContinue}
-          >
-            <Text style={styles.continueButtonText}>Continue</Text>
-          </Pressable>
+          />
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -333,22 +330,7 @@ const styles = StyleSheet.create({
     color: colors.error,
     fontWeight: typography.fontWeight.medium,
   },
-  continueButton: {
-    width: "100%",
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    alignItems: "center",
-    justifyContent: "center",
+  continueSpacing: {
     marginTop: spacing.xs,
-  },
-  continueButtonText: {
-    color: colors.white,
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

@@ -3,14 +3,15 @@ import { router } from "expo-router";
 import {
   Alert,
   Image,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { AppButton } from "@/components/ui/AppButton";
 import { categories } from "@/mocks/categories";
 import { popularProducts } from "@/mocks/retailerCatalogue";
 import { useAppDispatch } from "@/store/hooks";
@@ -70,11 +71,9 @@ export default function RetailerHomeScreen() {
         </View>
 
         {/* Search Bar */}
-        <Pressable
-          style={({ pressed }) => [
-            styles.searchContainer,
-            pressed && styles.pressed,
-          ]}
+        <TouchableOpacity
+          activeOpacity={0.85}
+          style={styles.searchContainer}
           onPress={handleSearch}
         >
           <Ionicons
@@ -83,7 +82,7 @@ export default function RetailerHomeScreen() {
             color={colors.textSecondary}
           />
           <Text style={styles.searchPlaceholder}>Search</Text>
-        </Pressable>
+        </TouchableOpacity>
 
         {/* Popular Products */}
         <View style={styles.section}>
@@ -116,25 +115,22 @@ export default function RetailerHomeScreen() {
                   Wholesaler: {product.wholesaler}
                 </Text>
 
-                <Pressable
-                  style={({ pressed }) => [
-                    styles.addButton,
-                    pressed && styles.pressed,
-                  ]}
+                <AppButton
+                  title="Add to Cart"
+                  size="sm"
                   onPress={() => handleAddToCart(product)}
-                >
-                  <Text style={styles.addButtonText}>Add to Cart</Text>
-                </Pressable>
+                />
               </View>
             ))}
           </ScrollView>
 
-          <Pressable
+          <TouchableOpacity
+            activeOpacity={0.75}
             style={styles.seeAllButton}
             onPress={() => router.push("/(retailer)/(tabs)/search")}
           >
             <Text style={styles.seeAll}>See all</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
 
         {/* Browse Categories */}
@@ -143,18 +139,16 @@ export default function RetailerHomeScreen() {
 
           <View style={styles.categoryGrid}>
             {categories.map((category) => (
-              <Pressable
+              <TouchableOpacity
                 key={category.name}
-                style={({ pressed }) => [
-                  styles.categoryCard,
-                  pressed && styles.pressed,
-                ]}
+                activeOpacity={0.85}
+                style={styles.categoryCard}
                 onPress={() => handleCategoryPress(category.name)}
               >
                 <Text style={styles.categoryName} numberOfLines={1}>
                   {category.name}
                 </Text>
-              </Pressable>
+              </TouchableOpacity>
             ))}
           </View>
         </View>
@@ -259,20 +253,6 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.caption,
     color: colors.textSecondary,
   },
-  addButton: {
-    width: "100%",
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 12,
-    paddingHorizontal: spacing.md,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  addButtonText: {
-    color: colors.white,
-    fontSize: typography.fontSize.body,
-    fontWeight: typography.fontWeight.semiBold,
-  },
   seeAllButton: {
     alignSelf: "flex-start",
   },
@@ -301,8 +281,5 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeight.semiBold,
     color: colors.text,
     textAlign: "center",
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

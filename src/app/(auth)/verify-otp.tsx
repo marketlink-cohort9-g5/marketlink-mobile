@@ -3,10 +3,10 @@ import { useEffect, useState } from "react";
 import {
   Alert,
   Keyboard,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -14,6 +14,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { CodeBoxInput } from "@/components/auth/CodeBoxInput";
 import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
 import { SupportFooter } from "@/components/auth/SupportFooter";
+import { AppButton } from "@/components/ui/AppButton";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -100,22 +101,22 @@ export default function VerifyOtpScreen() {
 
         <View style={styles.resendRow}>
           <Text style={styles.resendText}>Didn&apos;t receive a code? </Text>
-          <Pressable onPress={handleResend} disabled={countdown > 0}>
+          <TouchableOpacity
+            activeOpacity={0.75}
+            onPress={handleResend}
+            disabled={countdown > 0}
+          >
             <Text style={[styles.resendLink, countdown > 0 && styles.disabledLink]}>
               {countdown > 0 ? `Resend code (${countdown}s)` : "Resend code"}
             </Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.verifyButton,
-            pressed && styles.pressed,
-          ]}
+        <AppButton
+          title="Verify & Continue"
+          variant="secondary"
           onPress={handleVerify}
-        >
-          <Text style={styles.verifyButtonText}>Verify &amp; Continue</Text>
-        </Pressable>
+        />
 
         <Text style={styles.securityNote}>
           Your information is safe and secure with MarketLink.
@@ -172,26 +173,9 @@ const styles = StyleSheet.create({
   disabledLink: {
     opacity: 0.6,
   },
-  verifyButton: {
-    width: "100%",
-    backgroundColor: colors.white,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  verifyButtonText: {
-    color: colors.primary,
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-  },
   securityNote: {
     fontSize: typography.fontSize.body,
     color: colors.textLight,
     lineHeight: 22,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

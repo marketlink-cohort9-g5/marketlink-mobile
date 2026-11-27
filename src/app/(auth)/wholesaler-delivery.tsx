@@ -1,16 +1,10 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import {
-  Alert,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
+import { Alert, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
+import { AppButton } from "@/components/ui/AppButton";
 import { CheckboxRow } from "@/components/ui/CheckboxRow";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
@@ -146,15 +140,11 @@ export default function WholesalerDeliveryScreen() {
           />
         </View>
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.continueButton,
-            pressed && styles.pressed,
-          ]}
+        <AppButton
+          title="Continue"
+          style={styles.continueSpacing}
           onPress={handleContinue}
-        >
-          <Text style={styles.continueButtonText}>Continue</Text>
-        </Pressable>
+        />
 
         <Text style={styles.footerHint}>
           Next: add your first products. You can change this later.
@@ -212,26 +202,11 @@ const styles = StyleSheet.create({
   areasList: {
     gap: 22,
   },
-  continueButton: {
-    width: "100%",
-    backgroundColor: colors.primary,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    alignItems: "center",
-    justifyContent: "center",
+  continueSpacing: {
     marginTop: spacing.xs,
-  },
-  continueButtonText: {
-    color: colors.white,
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
   },
   footerHint: {
     fontSize: 13,
     color: colors.textSecondary,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

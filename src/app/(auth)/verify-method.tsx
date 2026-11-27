@@ -1,10 +1,11 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
 import { SupportFooter } from "@/components/auth/SupportFooter";
+import { AppButton } from "@/components/ui/AppButton";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -82,8 +83,9 @@ export default function VerifyMethodScreen() {
           {VERIFICATION_METHODS.map((option) => {
             const isSelected = selectedMethod === option.id;
             return (
-              <Pressable
+              <TouchableOpacity
                 key={option.id}
+                activeOpacity={0.85}
                 onPress={() => setSelectedMethod(option.id)}
                 style={[styles.optionCard, isSelected && styles.optionCardSelected]}
               >
@@ -95,20 +97,16 @@ export default function VerifyMethodScreen() {
                   <Text style={styles.optionTitle}>{option.title}</Text>
                   <Text style={styles.optionSubtitle}>{option.subtitle}</Text>
                 </View>
-              </Pressable>
+              </TouchableOpacity>
             );
           })}
         </View>
 
-        <Pressable
-          style={({ pressed }) => [
-            styles.continueButton,
-            pressed && styles.pressed,
-          ]}
+        <AppButton
+          title="Continue"
+          variant="secondary"
           onPress={handleContinue}
-        >
-          <Text style={styles.continueButtonText}>Continue</Text>
-        </Pressable>
+        />
 
         <SupportFooter />
       </ScrollView>
@@ -202,22 +200,5 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: typography.fontWeight.regular,
     color: colors.textLight,
-  },
-  continueButton: {
-    width: "100%",
-    backgroundColor: colors.white,
-    borderRadius: 8,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  continueButtonText: {
-    color: colors.primary,
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

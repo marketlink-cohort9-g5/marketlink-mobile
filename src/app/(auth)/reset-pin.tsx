@@ -4,16 +4,17 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
+import { AppButton } from "@/components/ui/AppButton";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
@@ -93,21 +94,16 @@ export default function ResetPinScreen() {
           </Text>
 
           <View style={styles.bottomSection}>
-            <Pressable
-              style={({ pressed }) => [
-                styles.primaryButton,
-                pressed && styles.pressed,
-              ]}
-              onPress={handleSendCode}
-            >
-              <Text style={styles.primaryButtonText}>Send Reset Code</Text>
-            </Pressable>
+            <AppButton title="Send Reset Code" onPress={handleSendCode} />
 
             <View style={styles.loginContainer}>
               <Text style={styles.loginText}>Remembered it? </Text>
-              <Pressable onPress={() => router.replace("/(auth)/login")}>
+              <TouchableOpacity
+                activeOpacity={0.75}
+                onPress={() => router.replace("/(auth)/login")}
+              >
                 <Text style={styles.loginLink}>Log In</Text>
-              </Pressable>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
@@ -179,20 +175,6 @@ const styles = StyleSheet.create({
     gap: spacing.lg,
     alignItems: "center",
   },
-  primaryButton: {
-    width: "100%",
-    borderRadius: 8,
-    backgroundColor: colors.primary,
-    paddingVertical: 14,
-    paddingHorizontal: spacing.xl,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  primaryButtonText: {
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-    color: colors.white,
-  },
   loginContainer: {
     flexDirection: "row",
     justifyContent: "center",
@@ -206,8 +188,5 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.body,
     fontWeight: typography.fontWeight.bold,
     color: colors.primary,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });
