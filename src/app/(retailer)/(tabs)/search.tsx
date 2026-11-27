@@ -1,69 +1,119 @@
-import { router } from "expo-router";
+import { Image as ExpoImage } from "expo-image";
+import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import {
-  Image,
+  Alert,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import { searchResults } from "@/mocks/retailerCatalogue";
 import { colors } from "@/theme/colors";
+import { spacing } from "@/theme/spacing";
+import { typography } from "@/theme/typography";
 import { formatCurrency } from "@/utils/format";
 
 type SortOption = "Lowest Price" | "Nearest" | "In Stock";
 
+const FILTERS: SortOption[] = ["Lowest Price", "Nearest", "In Stock"];
+
+/**
+ * Retailer search and multi-wholesaler comparison screen matching Figma Search Results frame.
+ */
 export default function SearchScreen() {
+  const { category } = useLocalSearchParams<{ category?: string }>();
+  const [query, setQuery] = useState("");
   const [selectedFilter, setSelectedFilter] =
     useState<SortOption>("Lowest Price");
 
   const sortedWholesalers = useMemo(() => {
-    const results = [...searchResults];
+    const normalized = query.trim().toLowerCase();
+    const filtered = normalized
+      ? searchResults.filter(
+          (item) =>
+            item.productName.toLowerCase().includes(normalized) ||
+            item.wholesaler.toLowerCase().includes(normalized),
+        )
+      : [...searchResults];
 
     if (selectedFilter === "Lowest Price") {
-      return results.sort((a, b) => a.price - b.price);
+      return [...filtered].sort((a, b) => a.price - b.price);
     }
 
     if (selectedFilter === "Nearest") {
-      return results.sort((a, b) => a.distance - b.distance);
+      return [...filtered].sort((a, b) => a.distance - b.distance);
     }
 
-    if (selectedFilter === "In Stock") {
-      return results.sort((a, b) => {
-        if (a.stock === b.stock) return a.price - b.price;
-        return a.stock === "In Stock" ? -1 : 1;
-      });
-    }
+    return [...filtered].sort((a, b) => {
+      if (a.stock === b.stock) return a.price - b.price;
+      return a.stock === "In Stock" ? -1 : 1;
+    });
+  }, [query, selectedFilter]);
 
-    return results;
-  }, [selectedFilter]);
-
-  const filters: SortOption[] = ["Lowest Price", "Nearest", "In Stock"];
+  const handleRequestProduct = () => {
+    Alert.alert(
+      "Product Request",
+      "Tell us what product you need and nearby wholesalers will respond with quotes.",
+    );
+  };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <ScrollView
-        showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
         contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <Pressable onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backText}>‹</Text>
-          </Pressable>
+        {/* Back Row */}
+        <Pressable
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/(retailer)/(tabs)/home");
+            }
+          }}
+          style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
+          hitSlop={8}
+        >
+          <ExpoImage
+            source={require("../../../../assets/images/marketlink/arrow-left.svg")}
+            style={styles.backArrow}
+            contentFit="contain"
+          />
+          <Text style={styles.backText}>Back</Text>
+        </Pressable>
 
-          <Text style={styles.headerTitle}>Search</Text>
+        {/* Search Input */}
+        <View style={styles.searchContainer}>
+          <ExpoImage
+            source={require("../../../../assets/images/marketlink/search-icon.svg")}
+            style={styles.searchIcon}
+            contentFit="contain"
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder={category ? `Search in ${category}` : "Search"}
+            placeholderTextColor={colors.textSecondary}
+            value={query}
+            onChangeText={setQuery}
+            returnKeyType="search"
+          />
         </View>
 
-        {/* Filters */}
+        {/* Filter Pills */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filterList}
         >
-          {filters.map((filter) => {
+          {FILTERS.map((filter) => {
             const isSelected = selectedFilter === filter;
 
             return (
@@ -88,345 +138,236 @@ export default function SearchScreen() {
           })}
         </ScrollView>
 
-        {/* Results information */}
-        <View style={styles.resultsHeader}>
-          <Text style={styles.resultsText}>3 products</Text>
-          <Text style={styles.locationText}>· within Jakande</Text>
-        </View>
+        {/* Results Meta */}
+        <Text style={styles.resultsText}>
+          {sortedWholesalers.length} products · within Jakande
+        </Text>
 
-        {/* Product comparison cards */}
+        {/* Product Comparison Cards */}
         <View style={styles.productList}>
-          {sortedWholesalers.map((item, index) => (
-            <View key={item.id} style={styles.productCard}>
-              <View style={styles.productHeader}>
-                <View style={styles.productIcon}>
-                  <Image
-                    source={item.image}
-                    style={styles.productPhoto}
-                    resizeMode="cover"
+          {sortedWholesalers.map((item) => (
+            <Pressable
+              key={item.id}
+              style={({ pressed }) => [
+                styles.productCard,
+                pressed && styles.pressed,
+              ]}
+              onPress={() =>
+                Alert.alert(
+                  item.wholesaler,
+                  `${item.productName} — ${formatCurrency(item.price)} (${item.pack})`,
+                )
+              }
+            >
+              <View style={styles.cardTopRow}>
+                <Text style={styles.productName}>{item.productName}</Text>
+
+                <View style={styles.wholesalerBadge}>
+                  <Text style={styles.wholesalerCount}>3 Wholesalers</Text>
+                  <ExpoImage
+                    source={require("../../../../assets/images/marketlink/chevron-right.svg")}
+                    style={styles.chevronRight}
+                    contentFit="contain"
                   />
                 </View>
-
-                <View style={styles.productInfo}>
-                  <Text style={styles.productName}>{item.productName}</Text>
-
-                  <Text style={styles.wholesalerCount}>3 Wholesalers</Text>
-
-                  <Text style={styles.packText}>{item.pack}</Text>
-                </View>
               </View>
 
-              <View style={styles.priceSection}>
-                <Text style={styles.fromText}>From</Text>
+              <Text style={styles.packText}>{item.pack.toLowerCase()}</Text>
 
-                <Text style={styles.priceText}>
-                  {formatCurrency(item.price)}
-                  <Text style={styles.unitText}> /carton</Text>
+              <Text style={styles.fromText}>From</Text>
+
+              <Text style={styles.priceText}>
+                {formatCurrency(item.price)}
+                <Text style={styles.unitText}> /carton</Text>
+              </Text>
+
+              {item.stock === "Low Stock" ? (
+                <Text style={styles.statusText}>
+                  <Text style={styles.lowStockText}>Low Stock</Text>
+                  {`. ${item.wholesaler}.`}
                 </Text>
-              </View>
-
-              <View style={styles.cardFooter}>
-                <View style={styles.storeInfo}>
-                  {item.stock === "Low Stock" ? (
-                    <View style={styles.lowStockBadge}>
-                      <Text style={styles.lowStockText}>Low Stock</Text>
-                    </View>
-                  ) : (
-                    <Text style={styles.bestPrice}>
-                      Best price at {item.wholesaler}.
-                    </Text>
-                  )}
-
-                  {item.stock === "Low Stock" && (
-                    <Text style={styles.storeName}>{item.wholesaler}</Text>
-                  )}
-
-                  <Text style={styles.updatedText}>Updated {item.updated}</Text>
-                </View>
-
-                <Text style={styles.chevron}>›</Text>
-              </View>
-            </View>
+              ) : (
+                <Text style={styles.statusText}>
+                  Best price at {item.wholesaler}. updated {item.updated}
+                </Text>
+              )}
+            </Pressable>
           ))}
         </View>
 
-        {/* Request product */}
+        {/* Request Product Link */}
         <Pressable
-          style={styles.requestCard}
-          onPress={() => router.push("/(wholesaler)/request-product" as any)}
+          style={styles.requestRow}
+          onPress={handleRequestProduct}
         >
-          <View style={styles.requestIcon}>
-            <Text style={styles.requestEmoji}>🔎</Text>
-          </View>
-
-          <View style={styles.requestInfo}>
-            <Text style={styles.requestTitle}>Can't find it?</Text>
-            <Text style={styles.requestSubtitle}>Tell us what you need</Text>
-          </View>
-
-          <Text style={styles.requestArrow}>›</Text>
+          <Text style={styles.requestPrefix}>Can&apos;t find it? </Text>
+          <Text style={styles.requestLink}>Tell us what you need</Text>
         </Pressable>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.primaryLight,
   },
-
+  scrollView: {
+    flex: 1,
+    backgroundColor: colors.primaryLight,
+  },
   content: {
-    paddingTop: 24,
-    paddingHorizontal: 24,
-    paddingBottom: 32,
-    gap: 20,
+    width: "100%",
+    maxWidth: 440,
+    alignSelf: "center",
+    padding: spacing.xl,
+    paddingBottom: spacing.xxl,
+    gap: spacing.lg,
   },
-
-  header: {
+  backButton: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 16,
+    alignSelf: "flex-start",
+    gap: spacing.sm,
+    minHeight: 32,
   },
-
-  backButton: {
-    width: 36,
-    height: 40,
-    justifyContent: "center",
+  backArrow: {
+    width: 17.25,
+    height: 16.69,
   },
-
   backText: {
-    fontSize: 32,
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
     color: colors.text,
   },
-
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: "700",
+  searchContainer: {
+    width: "100%",
+    height: 44,
+    borderWidth: 1,
+    borderColor: "#d9e1dc",
+    borderRadius: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: spacing.lg,
+    backgroundColor: colors.white,
+  },
+  searchIcon: {
+    width: 20,
+    height: 20,
+  },
+  searchInput: {
+    flex: 1,
+    fontSize: typography.fontSize.body,
     color: colors.text,
   },
-
   filterList: {
     gap: 10,
   },
-
   filterButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 11,
+    height: 42,
+    paddingHorizontal: spacing.lg,
     borderRadius: 22,
-    borderWidth: 1,
-    borderColor: colors.border,
     backgroundColor: colors.white,
+    alignItems: "center",
+    justifyContent: "center",
   },
-
   selectedFilter: {
     backgroundColor: colors.primary,
-    borderColor: colors.primary,
   },
-
   filterText: {
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: typography.fontSize.body,
+    fontWeight: typography.fontWeight.semiBold,
     color: colors.textSecondary,
   },
-
   selectedFilterText: {
     color: colors.white,
   },
-
-  resultsHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-
   resultsText: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.text,
-  },
-
-  locationText: {
-    fontSize: 14,
+    fontSize: typography.fontSize.caption,
     color: colors.textSecondary,
-    marginLeft: 4,
   },
-
   productList: {
-    gap: 16,
+    gap: spacing.lg,
   },
-
   productCard: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    padding: 14,
-    backgroundColor: colors.white,
-  },
-
-  productHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-  },
-
-  productIcon: {
-    width: 64,
-    height: 64,
-    borderRadius: 10,
-    backgroundColor: colors.primaryLight,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  productImage: {
     width: "100%",
-    height: "100%",
-    borderRadius: 10,
-  },
-
-  productPhoto: {
-    width: "85%",
-    height: "85%",
-  },
-
-  productInfo: {
-    flex: 1,
-    gap: 4,
-  },
-
-  productName: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.text,
-  },
-
-  wholesalerCount: {
-    fontSize: 13,
-    fontWeight: "600",
-    color: colors.primary,
-  },
-
-  packText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-
-  priceSection: {
-    marginTop: 16,
-    paddingTop: 12,
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-  },
-
-  fromText: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-
-  priceText: {
-    fontSize: 21,
-    fontWeight: "700",
-    color: colors.primary,
-    marginTop: 3,
-  },
-
-  unitText: {
-    fontSize: 14,
-    fontWeight: "400",
-    color: colors.textSecondary,
-  },
-
-  cardFooter: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 12,
-  },
-
-  storeInfo: {
-    flex: 1,
-    gap: 5,
-  },
-
-  bestPrice: {
-    fontSize: 12,
-    color: colors.textSecondary,
-  },
-
-  lowStockBadge: {
-    alignSelf: "flex-start",
-    backgroundColor: "#FCEAEA",
-    paddingHorizontal: 9,
-    paddingVertical: 5,
-    borderRadius: 6,
-  },
-
-  lowStockText: {
-    color: colors.error,
-    fontSize: 11,
-    fontWeight: "700",
-  },
-
-  storeName: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: colors.text,
-  },
-
-  updatedText: {
-    fontSize: 11,
-    color: colors.textLight,
-  },
-
-  chevron: {
-    fontSize: 28,
-    color: colors.textSecondary,
-    paddingHorizontal: 6,
-  },
-
-  requestCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: colors.border,
+    backgroundColor: colors.white,
     borderRadius: 12,
-    padding: 14,
-    gap: 12,
-    marginTop: 4,
+    padding: spacing.lg,
+    gap: spacing.sm,
   },
-
-  requestIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: colors.primaryLight,
+  cardTopRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: spacing.sm,
+  },
+  productName: {
+    flex: 1,
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
+    color: colors.text,
+  },
+  wholesalerBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  wholesalerCount: {
+    fontSize: typography.fontSize.caption,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.primary,
+  },
+  chevronRight: {
+    width: 6,
+    height: 12,
+  },
+  packText: {
+    fontSize: typography.fontSize.caption,
+    color: colors.textSecondary,
+  },
+  fromText: {
+    fontSize: typography.fontSize.caption,
+    color: colors.text,
+    marginTop: spacing.xs,
+  },
+  priceText: {
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
+    color: colors.text,
+  },
+  unitText: {
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
+    color: colors.textSecondary,
+  },
+  statusText: {
+    fontSize: typography.fontSize.caption,
+    color: colors.textSecondary,
+    marginTop: spacing.xs,
+  },
+  lowStockText: {
+    fontWeight: typography.fontWeight.bold,
+    color: colors.error,
+  },
+  requestRow: {
+    flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
+    paddingVertical: spacing.xs,
   },
-
-  requestEmoji: {
-    fontSize: 22,
-  },
-
-  requestInfo: {
-    flex: 1,
-    gap: 4,
-  },
-
-  requestTitle: {
-    fontSize: 15,
-    fontWeight: "700",
+  requestPrefix: {
+    fontSize: typography.fontSize.caption,
     color: colors.text,
   },
-
-  requestSubtitle: {
-    fontSize: 13,
-    color: colors.textSecondary,
-  },
-
-  requestArrow: {
-    fontSize: 25,
+  requestLink: {
+    fontSize: typography.fontSize.caption,
+    fontWeight: typography.fontWeight.bold,
     color: colors.primary,
+  },
+  pressed: {
+    opacity: 0.85,
   },
 });

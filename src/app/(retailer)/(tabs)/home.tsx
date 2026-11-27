@@ -1,3 +1,4 @@
+import { Image as ExpoImage } from "expo-image";
 import { router } from "expo-router";
 import {
   Alert,
@@ -6,17 +7,22 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 import { categories } from "@/mocks/categories";
 import { popularProducts } from "@/mocks/retailerCatalogue";
 import { useAppDispatch } from "@/store/hooks";
 import { addToCart } from "@/store/slices/cartSlice";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
+import { typography } from "@/theme/typography";
 import { formatCurrency } from "@/utils/format";
 
+/**
+ * Retailer home dashboard screen matching Figma Retailer Home frame.
+ */
 export default function RetailerHomeScreen() {
   const dispatch = useAppDispatch();
 
@@ -35,7 +41,7 @@ export default function RetailerHomeScreen() {
 
     Alert.alert(
       "Added to Cart",
-      `${product.name} has been added to your cart.`,
+      `${product.name} has been added to your orders cart.`,
     );
   };
 
@@ -43,56 +49,45 @@ export default function RetailerHomeScreen() {
     router.push({
       pathname: "/(retailer)/(tabs)/search",
       params: { category },
-    } as any);
+    });
   };
 
   const handleSearch = () => {
-    router.push("/(retailer)/(tabs)/search" as any);
+    router.push("/(retailer)/(tabs)/search");
   };
+
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safeArea} edges={["top"]}>
       <ScrollView
-        showsVerticalScrollIndicator={false}
+        style={styles.scrollView}
         contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
       >
         {/* Welcome Header */}
         <View style={styles.header}>
-          <View>
-            <Text style={styles.welcomeText}>Welcome</Text>
-            <Text style={styles.shopName}>Ade Provision Store</Text>
-          </View>
-
-          <Pressable
-            style={styles.notificationButton}
-            onPress={() => router.push("/(retailer)/notifications" as any)}
-          >
-            <Text style={styles.notificationIcon}>🔔</Text>
-          </Pressable>
+          <Text style={styles.welcomeText}>Welcome</Text>
+          <Text style={styles.shopName}>Ade Provision Store</Text>
         </View>
 
         {/* Search Bar */}
-        <Pressable style={styles.searchContainer} onPress={handleSearch}>
-          <Text style={styles.searchIcon}>⌕</Text>
-          <TextInput
-            placeholder="Search"
-            placeholderTextColor={colors.textLight}
-            style={styles.searchInput}
-            editable={true}
-            pointerEvents="none"
+        <Pressable
+          style={({ pressed }) => [
+            styles.searchContainer,
+            pressed && styles.pressed,
+          ]}
+          onPress={handleSearch}
+        >
+          <ExpoImage
+            source={require("../../../../assets/images/marketlink/search-icon.svg")}
+            style={styles.searchIcon}
+            contentFit="contain"
           />
+          <Text style={styles.searchPlaceholder}>Search</Text>
         </Pressable>
 
         {/* Popular Products */}
         <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Popular Products</Text>
-
-            <Pressable
-              onPress={() => router.push("/(retailer)/(tabs)/search" as any)}
-            >
-              <Text style={styles.seeAll}>See all</Text>
-            </Pressable>
-          </View>
+          <Text style={styles.sectionTitle}>Popular Products</Text>
 
           <ScrollView
             horizontal
@@ -101,11 +96,11 @@ export default function RetailerHomeScreen() {
           >
             {popularProducts.map((product) => (
               <View key={product.id} style={styles.productCard}>
-                <View style={styles.productImage}>
+                <View style={styles.productImageWrapper}>
                   <Image
                     source={product.image}
                     style={styles.productPhoto}
-                    resizeMode="contain"
+                    resizeMode="cover"
                   />
                 </View>
 
@@ -113,18 +108,19 @@ export default function RetailerHomeScreen() {
                   {product.name}
                 </Text>
 
-                <Text style={styles.packLabel}>{product.packLabel}</Text>
-
                 <Text style={styles.productPrice}>
                   {formatCurrency(product.price)}
                 </Text>
 
-                <Text style={styles.wholesaler} numberOfLines={1}>
+                <Text style={styles.wholesaler} numberOfLines={2}>
                   Wholesaler: {product.wholesaler}
                 </Text>
 
                 <Pressable
-                  style={styles.addButton}
+                  style={({ pressed }) => [
+                    styles.addButton,
+                    pressed && styles.pressed,
+                  ]}
                   onPress={() => handleAddToCart(product)}
                 >
                   <Text style={styles.addButtonText}>Add to Cart</Text>
@@ -132,6 +128,13 @@ export default function RetailerHomeScreen() {
               </View>
             ))}
           </ScrollView>
+
+          <Pressable
+            style={styles.seeAllButton}
+            onPress={() => router.push("/(retailer)/(tabs)/search")}
+          >
+            <Text style={styles.seeAll}>See all</Text>
+          </Pressable>
         </View>
 
         {/* Browse Categories */}
@@ -142,222 +145,168 @@ export default function RetailerHomeScreen() {
             {categories.map((category) => (
               <Pressable
                 key={category.name}
-                style={styles.categoryCard}
+                style={({ pressed }) => [
+                  styles.categoryCard,
+                  pressed && styles.pressed,
+                ]}
                 onPress={() => handleCategoryPress(category.name)}
               >
-                <View style={styles.categoryIconContainer}>
-                  <Text style={styles.categoryIcon}>{category.icon}</Text>
-                </View>
-
-                <Text style={styles.categoryName}>{category.name}</Text>
+                <Text style={styles.categoryName} numberOfLines={1}>
+                  {category.name}
+                </Text>
               </Pressable>
             ))}
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
+    backgroundColor: colors.primaryLight,
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: colors.primaryLight,
+  },
+  content: {
+    width: "100%",
+    maxWidth: 440,
+    alignSelf: "center",
+    padding: spacing.xl,
+    paddingBottom: spacing.xxl,
+    gap: spacing.md,
+  },
+  header: {
+    gap: spacing.sm,
+  },
+  welcomeText: {
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
+    color: colors.textSecondary,
+  },
+  shopName: {
+    fontSize: typography.fontSize.title,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.text,
+  },
+  searchContainer: {
+    width: "100%",
+    height: 44,
+    borderWidth: 1,
+    borderColor: "#d9e1dc",
+    borderRadius: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    paddingHorizontal: spacing.lg,
     backgroundColor: colors.white,
   },
-
-  content: {
-    padding: 24,
-    paddingBottom: 32,
-    gap: spacing.xl,
-  },
-
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-  },
-
-  welcomeText: {
-    fontSize: 16,
-    color: colors.textSecondary,
-  },
-
-  shopName: {
-    fontSize: 23,
-    fontWeight: "700",
-    color: colors.text,
-    marginTop: 4,
-  },
-
-  notificationButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.primaryLight,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  notificationIcon: {
-    fontSize: 21,
-  },
-
-  searchContainer: {
-    height: 54,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    backgroundColor: colors.surface,
-  },
-
   searchIcon: {
-    fontSize: 25,
+    width: 20,
+    height: 20,
+  },
+  searchPlaceholder: {
+    fontSize: typography.fontSize.body,
     color: colors.textSecondary,
-    marginRight: 10,
   },
-
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: colors.text,
-  },
-
   section: {
     gap: spacing.md,
   },
-
-  sectionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
-
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: "700",
+    fontSize: typography.fontSize.title,
+    fontWeight: typography.fontWeight.bold,
     color: colors.text,
   },
-
-  seeAll: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: colors.primary,
-  },
-
   productList: {
-    gap: spacing.md,
-    paddingRight: 8,
+    gap: spacing.lg,
+    paddingRight: spacing.sm,
   },
-
   productCard: {
-    width: 220,
-    minHeight: 311,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 14,
-    padding: 12,
+    width: 168,
     backgroundColor: colors.white,
-    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#e5eae6",
+    borderRadius: 12,
+    padding: spacing.md,
+    gap: spacing.sm,
+    alignItems: "flex-start",
     justifyContent: "space-between",
   },
-
-  productImage: {
+  productImageWrapper: {
     width: "100%",
-    height: 125,
-    borderRadius: 10,
-    backgroundColor: colors.primaryLight,
-    alignItems: "center",
-    justifyContent: "center",
+    height: 110,
+    borderRadius: 8,
+    borderWidth: 3,
+    borderColor: colors.surface,
+    backgroundColor: colors.white,
+    overflow: "hidden",
   },
-
   productPhoto: {
     width: "100%",
     height: "100%",
   },
-
-  productEmoji: {
-    fontSize: 55,
-  },
-
   productName: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: typography.fontSize.body,
+    fontWeight: typography.fontWeight.regular,
     color: colors.text,
-    textAlign: "center",
-    marginTop: 10,
   },
-
-  packLabel: {
-    fontSize: 13,
-    color: colors.textSecondary,
-    textAlign: "center",
-    marginTop: 4,
-  },
-
   productPrice: {
-    fontSize: 19,
-    fontWeight: "700",
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
     color: colors.primary,
-    textAlign: "center",
-    marginTop: 8,
   },
-
   wholesaler: {
-    fontSize: 12,
+    fontSize: typography.fontSize.caption,
     color: colors.textSecondary,
-    textAlign: "center",
-    marginTop: 5,
   },
-
   addButton: {
     width: "100%",
-    height: 42,
     backgroundColor: colors.primary,
     borderRadius: 8,
+    paddingVertical: 12,
+    paddingHorizontal: spacing.md,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 12,
   },
-
   addButtonText: {
     color: colors.white,
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: typography.fontSize.body,
+    fontWeight: typography.fontWeight.semiBold,
   },
-
+  seeAllButton: {
+    alignSelf: "flex-start",
+  },
+  seeAll: {
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
+    color: colors.primary,
+  },
   categoryGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    rowGap: 14,
+    rowGap: spacing.md,
   },
-
   categoryCard: {
     width: "31%",
-    alignItems: "center",
-    gap: 8,
-  },
-
-  categoryIconContainer: {
-    width: "100%",
-    aspectRatio: 1,
+    height: 80,
     borderRadius: 12,
-    backgroundColor: colors.primaryLight,
+    backgroundColor: colors.white,
+    paddingHorizontal: spacing.xs,
     alignItems: "center",
     justifyContent: "center",
   },
-
-  categoryIcon: {
-    fontSize: 32,
-  },
-
   categoryName: {
-    fontSize: 13,
-    fontWeight: "600",
+    fontSize: 16,
+    fontWeight: typography.fontWeight.semiBold,
     color: colors.text,
     textAlign: "center",
+  },
+  pressed: {
+    opacity: 0.85,
   },
 });

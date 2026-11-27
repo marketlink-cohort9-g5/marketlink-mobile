@@ -1,9 +1,28 @@
+import { Image as ExpoImage, type ImageProps } from "expo-image";
 import { Tabs } from "expo-router";
-import { Text } from "react-native";
+import { type ImageStyle, StyleSheet } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { colors } from "@/theme/colors";
 
+function renderTabIcon(source: ImageProps["source"], iconStyle: ImageStyle) {
+  return ({ focused }: { focused: boolean }) => (
+    <ExpoImage
+      source={source}
+      style={[iconStyle, !focused && styles.inactiveIcon]}
+      tintColor={focused ? colors.primary : colors.textSecondary}
+      contentFit="contain"
+    />
+  );
+}
+
+/**
+ * Retailer bottom tab navigator matching Figma Navigation Bar (Home, Search, Orders, Profile).
+ */
 export default function RetailerTabsLayout() {
+  const insets = useSafeAreaInsets();
+  const bottomPadding = Math.max(insets.bottom, 8);
+
   return (
     <Tabs
       screenOptions={{
@@ -11,14 +30,15 @@ export default function RetailerTabsLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textSecondary,
         tabBarStyle: {
-          height: 65,
-          paddingBottom: 8,
-          paddingTop: 8,
+          height: 58 + bottomPadding,
+          paddingBottom: bottomPadding,
+          paddingTop: 6,
           backgroundColor: colors.white,
           borderTopColor: colors.border,
+          borderTopWidth: 1,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 13,
           fontWeight: "600",
         },
       }}
@@ -27,8 +47,9 @@ export default function RetailerTabsLayout() {
         name="home"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 20, color }}>⌂</Text>
+          tabBarIcon: renderTabIcon(
+            require("../../../../assets/images/marketlink/tab-home.svg"),
+            styles.homeIcon,
           ),
         }}
       />
@@ -37,11 +58,52 @@ export default function RetailerTabsLayout() {
         name="search"
         options={{
           title: "Search",
-          tabBarIcon: ({ color }) => (
-            <Text style={{ fontSize: 20, color }}>⌕</Text>
+          tabBarIcon: renderTabIcon(
+            require("../../../../assets/images/marketlink/tab-search.svg"),
+            styles.squareIcon,
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="orders"
+        options={{
+          title: "Orders",
+          tabBarIcon: renderTabIcon(
+            require("../../../../assets/images/marketlink/tab-orders.svg"),
+            styles.squareIcon,
+          ),
+        }}
+      />
+
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          tabBarIcon: renderTabIcon(
+            require("../../../../assets/images/marketlink/tab-profile.svg"),
+            styles.profileIcon,
           ),
         }}
       />
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  homeIcon: {
+    width: 20,
+    height: 20.24,
+  },
+  squareIcon: {
+    width: 22,
+    height: 22,
+  },
+  profileIcon: {
+    width: 16,
+    height: 19,
+  },
+  inactiveIcon: {
+    opacity: 0.75,
+  },
+});
