@@ -15,9 +15,21 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
 import { FileUploadRow } from "@/components/ui/FileUploadRow";
+import {
+  UploadSourceModal,
+  type UploadSourceOption,
+} from "@/components/ui/UploadSourceModal";
+import { useShopPhotoCapture } from "@/hooks/useShopPhotoCapture";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
+import {
+  formatFileLabel,
+  pickIdDocument,
+  requestAndOpenCamera,
+  requestAndOpenPhotoLibrary,
+  type PickedMediaFile,
+} from "@/utils/mediaPicker";
 
 /**
  * Wholesaler registration Step 3 screen for business details and KYC uploads.
@@ -27,42 +39,67 @@ export default function WholesalerBusinessScreen() {
   const [marketArea, setMarketArea] = useState("");
   const [shopAddress, setShopAddress] = useState("");
   const [cacNumber, setCacNumber] = useState("");
-  const [validIdFile, setValidIdFile] = useState("id-card.jpg · 210 KB");
-  const [shopPhotoFile, setShopPhotoFile] = useState("");
+  const [validIdFile, setValidIdFile] = useState<PickedMediaFile | null>(null);
+  const [idError, setIdError] = useState<string | null>(null);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [isPickingId, setIsPickingId] = useState(false);
+  const [showIdSourceModal, setShowIdSourceModal] = useState(false);
 
-  const handleSelectId = () => {
-    setValidIdFile((prev) =>
-      prev === "id-card.jpg · 210 KB"
-        ? "national-id.jpg · 340 KB"
-        : "id-card.jpg · 210 KB",
-    );
-  };
+  const shopPhoto = useShopPhotoCapture("shop-exterior.jpg", () =>
+    setFormError(null),
+  );
 
-  const handleSelectShopPhoto = () => {
-    setShopPhotoFile((prev) =>
-      prev === "shop-front.jpg · 420 KB"
-        ? "shop-exterior.jpg · 510 KB"
-        : "shop-front.jpg · 420 KB",
-    );
+  const handleSelectIdSource = async (source: UploadSourceOption) => {
+    setIdError(null);
+    setIsPickingId(true);
+    try {
+      const outcome =
+        source === "files"
+          ? await pickIdDocument()
+          : source === "library"
+            ? await requestAndOpenPhotoLibrary("valid-id.jpg")
+            : await requestAndOpenCamera("valid-id.jpg");
+
+      if (outcome.status === "success") {
+        setValidIdFile(outcome.file);
+        setIdError(null);
+        setFormError(null);
+      } else if (outcome.status !== "canceled") {
+        setIdError(outcome.message);
+      }
+    } finally {
+      setIsPickingId(false);
+    }
   };
 
   const handleContinue = () => {
     if (!businessName.trim() || !marketArea.trim() || !shopAddress.trim()) {
-      Alert.alert(
-        "Missing Details",
-        "Please fill in your business name, market or area, and shop address.",
-      );
+      const message =
+        "Please fill in your business name, market or area, and shop address.";
+      setFormError(message);
+      if (Platform.OS !== "web") {
+        Alert.alert("Missing Details", message);
+      }
       return;
     }
 
-    if (!validIdFile || !shopPhotoFile) {
-      Alert.alert(
-        "Documents Required",
-        "Please attach both a valid ID and a photo of your shop.",
-      );
+    if (!validIdFile || !shopPhoto.photoFile) {
+      const message =
+        "Please upload your valid ID document and snap a photo of your shop.";
+      setFormError(message);
+      if (!validIdFile) {
+        setIdError("Please upload a clear valid ID document.");
+      }
+      if (!shopPhoto.photoFile) {
+        shopPhoto.setPhotoError("Please snap a photo of your shop.");
+      }
+      if (Platform.OS !== "web") {
+        Alert.alert("Documents Required", message);
+      }
       return;
     }
 
+    setFormError(null);
     router.push({
       pathname: "/(auth)/wholesaler-delivery",
       params: {
@@ -104,7 +141,10 @@ export default function WholesalerBusinessScreen() {
               placeholder="Enter Your Business Name"
               placeholderTextColor={colors.textSecondary}
               value={businessName}
-              onChangeText={setBusinessName}
+              onChangeText={(value) => {
+                setBusinessName(value);
+                setFormError(null);
+              }}
             />
           </View>
 
@@ -115,7 +155,10 @@ export default function WholesalerBusinessScreen() {
               placeholder="Idumota"
               placeholderTextColor={colors.textLight}
               value={marketArea}
-              onChangeText={setMarketArea}
+              onChangeText={(value) => {
+                setMarketArea(value);
+                setFormError(null);
+              }}
             />
           </View>
 
@@ -126,7 +169,10 @@ export default function WholesalerBusinessScreen() {
               placeholder="Enter Your Shop Address"
               placeholderTextColor={colors.textLight}
               value={shopAddress}
-              onChangeText={setShopAddress}
+              onChangeText={(value) => {
+                setShopAddress(value);
+                setFormError(null);
+              }}
             />
           </View>
 
@@ -145,28 +191,54 @@ export default function WholesalerBusinessScreen() {
           <View style={styles.field}>
             <Text style={styles.label}>Upload a Valid ID</Text>
             <Text style={styles.helperText}>
-              Upload a clear photo of your government-issued ID (e.g. National
-              ID, Voter&apos;s card, driver&apos;s licence or international
-              passport)
+              Upload a clear photo or PDF of your government-issued ID (e.g.
+              National ID, Voter&apos;s card, driver&apos;s licence or
+              international passport)
             </Text>
             <FileUploadRow
-              fileLabel={validIdFile}
-              placeholder="No ID selected"
+              fileLabel={formatFileLabel(validIdFile)}
+              previewUri={validIdFile?.isImage ? validIdFile.uri : undefined}
+              isDocument={Boolean(validIdFile && !validIdFile.isImage)}
+              emptyIcon="cloud-upload-outline"
+              placeholder="No document selected"
               actionLabel={validIdFile ? "Replace" : "Upload"}
-              onPress={handleSelectId}
+              loading={isPickingId}
+              error={idError}
+              onPress={() => {
+                setIdError(null);
+                setShowIdSourceModal(true);
+              }}
             />
           </View>
 
           <View style={styles.field}>
             <Text style={styles.label}>Photo of Your Shop</Text>
             <FileUploadRow
-              fileLabel={shopPhotoFile}
+              fileLabel={formatFileLabel(shopPhoto.photoFile)}
+              previewUri={shopPhoto.photoFile?.uri}
+              emptyIcon="camera-outline"
               placeholder="No photo yet"
-              actionLabel={shopPhotoFile ? "Replace" : "Take Photo"}
-              onPress={handleSelectShopPhoto}
+              actionLabel={shopPhoto.photoFile ? "Replace" : "Take Photo"}
+              loading={shopPhoto.isCapturing}
+              error={shopPhoto.photoError}
+              onPress={() => void shopPhoto.captureFromCamera()}
             />
-            <Text style={styles.photoHint}>JPG or PNG, maximum 5MB.</Text>
+            {shopPhoto.cameraUnavailable ? (
+              <Pressable
+                onPress={() => void shopPhoto.chooseFromLibrary()}
+                style={({ pressed }) => pressed && styles.pressed}
+              >
+                <Text style={styles.fallbackLink}>
+                  Choose shop photo from library instead
+                </Text>
+              </Pressable>
+            ) : null}
+            <Text style={styles.photoHint}>
+              JPG or PNG (PDF allowed for ID), maximum 5MB.
+            </Text>
           </View>
+
+          {formError ? <Text style={styles.formError}>{formError}</Text> : null}
 
           <Pressable
             style={({ pressed }) => [
@@ -179,6 +251,14 @@ export default function WholesalerBusinessScreen() {
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <UploadSourceModal
+        visible={showIdSourceModal}
+        title="Upload Valid ID"
+        subtitle="Select a file or photo of your valid ID. Your phone will ask permission before accessing your photos or camera."
+        onSelect={(source) => void handleSelectIdSource(source)}
+        onClose={() => setShowIdSourceModal(false)}
+      />
     </SafeAreaView>
   );
 }
@@ -238,9 +318,20 @@ const styles = StyleSheet.create({
     fontSize: typography.fontSize.body,
     color: colors.text,
   },
+  fallbackLink: {
+    fontSize: typography.fontSize.caption,
+    fontWeight: typography.fontWeight.semiBold,
+    color: colors.primary,
+  },
   photoHint: {
     fontSize: 13,
     color: colors.textSecondary,
+  },
+  formError: {
+    width: "100%",
+    fontSize: typography.fontSize.caption,
+    color: colors.error,
+    fontWeight: typography.fontWeight.medium,
   },
   continueButton: {
     width: "100%",

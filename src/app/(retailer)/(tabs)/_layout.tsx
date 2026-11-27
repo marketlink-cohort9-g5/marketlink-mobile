@@ -11,13 +11,15 @@ function renderTabIcon(
   activeName: IoniconsIconName,
   inactiveName: IoniconsIconName,
 ) {
-  return ({ focused }: { focused: boolean }) => (
-    <Ionicons
-      name={focused ? activeName : inactiveName}
-      size={22}
-      color={focused ? colors.primary : colors.textSecondary}
-    />
-  );
+  return function TabBarIcon({ focused }: { focused: boolean }) {
+    return (
+      <Ionicons
+        name={focused ? activeName : inactiveName}
+        size={22}
+        color={focused ? colors.primary : colors.textSecondary}
+      />
+    );
+  };
 }
 
 /**

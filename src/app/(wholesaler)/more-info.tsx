@@ -1,14 +1,24 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { BackButton } from "@/components/ui/BackButton";
 import { FileUploadRow } from "@/components/ui/FileUploadRow";
 import { ContactSupportButton } from "@/components/wholesaler/ContactSupportButton";
+import { useShopPhotoCapture } from "@/hooks/useShopPhotoCapture";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
 import { typography } from "@/theme/typography";
+import { formatFileLabel } from "@/utils/mediaPicker";
 
 /**
  * Wholesaler verification follow-up screen matching Figma Wholesaler More Info Needed.
@@ -17,36 +27,37 @@ export default function WholesalerMoreInfoScreen() {
   const { businessName } = useLocalSearchParams<{ businessName?: string }>();
   const resolvedBusiness = businessName || "Ade Provision Store";
 
-  const [shopPhoto, setShopPhoto] = useState("id-card.jpg · 210 KB_Unclear");
-  const [hasReplaced, setHasReplaced] = useState(false);
-
-  const handleReplacePhoto = () => {
-    setShopPhoto("shop-front-clear.jpg · 420 KB");
-    setHasReplaced(true);
-  };
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const shopPhoto = useShopPhotoCapture("shop-front-clear.jpg", () =>
+    setSubmitError(null),
+  );
 
   const handleSendDetails = () => {
-    if (!hasReplaced) {
-      Alert.alert(
-        "Replace Photo Required",
-        "Please tap Replace to upload a clearer photo of your shop front.",
-      );
+    if (!shopPhoto.photoFile) {
+      const message =
+        "Please tap Replace to snap a clearer photo of your shop front.";
+      setSubmitError(message);
+      if (Platform.OS !== "web") {
+        Alert.alert("Replace Photo Required", message);
+      }
+      return;
+    }
+
+    const navigateNext = () =>
+      router.replace({
+        pathname: "/(wholesaler)/pending-verification",
+        params: { businessName: resolvedBusiness },
+      });
+
+    if (Platform.OS === "web") {
+      navigateNext();
       return;
     }
 
     Alert.alert(
       "Details Updated",
       "Your updated shop photo has been submitted for review.",
-      [
-        {
-          text: "Continue",
-          onPress: () =>
-            router.replace({
-              pathname: "/(wholesaler)/pending-verification",
-              params: { businessName: resolvedBusiness },
-            }),
-        },
-      ],
+      [{ text: "Continue", onPress: navigateNext }],
     );
   };
 
@@ -85,14 +96,36 @@ export default function WholesalerMoreInfoScreen() {
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Your Shop Photo</Text>
           <FileUploadRow
-            fileLabel={shopPhoto}
+            fileLabel={
+              shopPhoto.photoFile
+                ? formatFileLabel(shopPhoto.photoFile)
+                : "id-card.jpg · 210 KB_Unclear"
+            }
+            previewUri={shopPhoto.photoFile?.uri}
+            emptyIcon={!shopPhoto.photoFile ? "camera-outline" : undefined}
             placeholder="No photo selected"
             actionLabel="Replace"
-            onPress={handleReplacePhoto}
+            loading={shopPhoto.isCapturing}
+            error={shopPhoto.photoError}
+            onPress={() => void shopPhoto.captureFromCamera()}
           />
+          {shopPhoto.cameraUnavailable ? (
+            <Pressable
+              onPress={() => void shopPhoto.chooseFromLibrary()}
+              style={({ pressed }) => pressed && styles.pressed}
+            >
+              <Text style={styles.fallbackLink}>
+                Choose shop photo from library instead
+              </Text>
+            </Pressable>
+          ) : null}
         </View>
 
         <View style={styles.bottomActions}>
+          {submitError ? (
+            <Text style={styles.submitError}>{submitError}</Text>
+          ) : null}
+
           <Pressable
             style={({ pressed }) => [
               styles.submitButton,
@@ -170,11 +203,21 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     color: colors.textSecondary,
   },
+  fallbackLink: {
+    fontSize: typography.fontSize.caption,
+    fontWeight: typography.fontWeight.semiBold,
+    color: colors.primary,
+  },
   bottomActions: {
     width: "100%",
     marginTop: "auto",
     paddingTop: spacing.xl,
     gap: spacing.lg,
+  },
+  submitError: {
+    fontSize: typography.fontSize.caption,
+    color: colors.error,
+    fontWeight: typography.fontWeight.medium,
   },
   submitButton: {
     width: "100%",
