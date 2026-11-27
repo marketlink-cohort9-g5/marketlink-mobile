@@ -1,5 +1,5 @@
 /**
- * MarketLink brand and surface color tokens from the Figma Project Page.
+ * MarketLink brand and surface color tokens
  */
 export const colors = {
   primary: "#11784e",

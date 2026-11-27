@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { router } from "expo-router";
+import { useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -10,11 +11,17 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
+import { typography } from "@/theme/typography";
 import { isValidPhone } from "@/utils/validators";
 
+/**
+ * Reset PIN phone entry screen matching Figma Reset Password frame.
+ */
 export default function ResetPinScreen() {
   const [phone, setPhone] = useState("");
 
@@ -32,7 +39,6 @@ export default function ResetPinScreen() {
       return;
     }
 
-    // Password reset API integration will be added here.
     router.push({
       pathname: "/(auth)/reset-pin-otp",
       params: {
@@ -42,172 +48,166 @@ export default function ResetPinScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {/* Back to Login */}
-        <Pressable
-          onPress={() => router.replace("/(auth)/login" as any)}
-          style={styles.backButton}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={styles.backText}>‹ Back to log in</Text>
-        </Pressable>
+          <OnboardingHeader
+            showBack
+            backLabel="Back to log in"
+            onBackPress={() => router.replace("/(auth)/login")}
+            logoHeight={115}
+          />
 
-        {/* Heading */}
-        <View style={styles.header}>
           <Text style={styles.title}>Reset Your Pin</Text>
 
           <Text style={styles.subtitle}>
             Enter the Phone number you signed up with. We will send you a code
             to reset your pin
           </Text>
-        </View>
 
-        {/* Phone Number */}
-        <View style={styles.field}>
-          <Text style={styles.label}>Phone Number</Text>
+          <View style={styles.field}>
+            <Text style={styles.label}>Phone Number</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter Your Phone Number"
+              placeholderTextColor={colors.textLight}
+              value={phone}
+              onChangeText={setPhone}
+              keyboardType="phone-pad"
+              autoCapitalize="none"
+              maxLength={14}
+            />
+          </View>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Enter Your Phone Number"
-            placeholderTextColor={colors.textLight}
-            value={phone}
-            onChangeText={setPhone}
-            keyboardType="phone-pad"
-            autoCapitalize="none"
-          />
-        </View>
+          <Text style={styles.infoText}>
+            If an account exists for this number, the code will arrive in a few
+            minutes.
+          </Text>
 
-        {/* Information */}
-        <Text style={styles.infoText}>
-          If an account exists for this number, the code will arrive in a few
-          minutes.
-        </Text>
+          <View style={styles.bottomSection}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.primaryButton,
+                pressed && styles.pressed,
+              ]}
+              onPress={handleSendCode}
+            >
+              <Text style={styles.primaryButtonText}>Send Reset Code</Text>
+            </Pressable>
 
-        {/* Send Reset Code */}
-        <Pressable style={styles.primaryButton} onPress={handleSendCode}>
-          <Text style={styles.primaryButtonText}>Send Reset Code</Text>
-        </Pressable>
-
-        {/* Login Link */}
-        <View style={styles.loginContainer}>
-          <Text style={styles.loginText}>Remembered it? </Text>
-
-          <Pressable onPress={() => router.replace("/(auth)/login" as any)}>
-            <Text style={styles.loginLink}>Log In</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+            <View style={styles.loginContainer}>
+              <Text style={styles.loginText}>Remembered it? </Text>
+              <Pressable onPress={() => router.replace("/(auth)/login")}>
+                <Text style={styles.loginLink}>Log In</Text>
+              </Pressable>
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.primaryLight,
   },
-
-  content: {
+  flex: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: colors.primaryLight,
+  },
+  container: {
     flexGrow: 1,
-    padding: 24,
-    paddingTop: 32,
-    gap: spacing.xl,
+    width: "100%",
+    maxWidth: 440,
+    alignSelf: "center",
+    padding: spacing.xl,
+    gap: spacing.lg,
+    alignItems: "flex-start",
   },
-
-  backButton: {
-    minHeight: 48,
-    justifyContent: "center",
-    alignSelf: "flex-start",
-  },
-
-  backText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.primary,
-  },
-
-  header: {
-    gap: spacing.md,
-    marginTop: spacing.xl,
-  },
-
   title: {
-    fontSize: 30,
-    fontWeight: "700",
+    fontSize: typography.fontSize.title,
+    fontWeight: typography.fontWeight.bold,
     color: colors.text,
   },
-
   subtitle: {
-    fontSize: 16,
-    lineHeight: 25,
-    color: colors.textSecondary,
-  },
-
-  field: {
-    gap: spacing.sm,
-    marginTop: spacing.md,
-  },
-
-  label: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: typography.fontSize.body,
+    lineHeight: 22,
     color: colors.text,
   },
-
+  field: {
+    width: "100%",
+    gap: spacing.sm,
+  },
+  label: {
+    fontSize: typography.fontSize.title,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.text,
+  },
   input: {
-    height: 54,
+    width: "100%",
+    height: 52,
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    borderRadius: 8,
+    paddingHorizontal: spacing.md,
+    fontSize: typography.fontSize.body,
     color: colors.text,
-    backgroundColor: colors.white,
   },
-
   infoText: {
-    fontSize: 14,
-    lineHeight: 21,
+    fontSize: typography.fontSize.body,
+    lineHeight: 22,
     color: colors.textSecondary,
   },
-
+  bottomSection: {
+    width: "100%",
+    marginTop: "auto",
+    paddingTop: spacing.xxl,
+    gap: spacing.lg,
+    alignItems: "center",
+  },
   primaryButton: {
-    height: 54,
-    borderRadius: 12,
+    width: "100%",
+    borderRadius: 8,
     backgroundColor: colors.primary,
+    paddingVertical: 14,
+    paddingHorizontal: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: spacing.md,
   },
-
   primaryButtonText: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
     color: colors.white,
   },
-
   loginContainer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    marginTop: spacing.md,
   },
-
   loginText: {
-    fontSize: 15,
-    color: colors.textSecondary,
+    fontSize: typography.fontSize.body,
+    color: colors.text,
   },
-
   loginLink: {
-    fontSize: 15,
-    fontWeight: "700",
+    fontSize: typography.fontSize.body,
+    fontWeight: typography.fontWeight.bold,
     color: colors.primary,
+  },
+  pressed: {
+    opacity: 0.85,
   },
 });

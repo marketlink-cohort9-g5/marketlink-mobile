@@ -8,6 +8,8 @@ import { typography } from "@/theme/typography";
 
 interface OnboardingHeaderProps {
   showBack?: boolean;
+  backLabel?: string;
+  onBackPress?: () => void;
   step?: number;
   totalSteps?: number;
   logoHeight?: number;
@@ -18,6 +20,8 @@ interface OnboardingHeaderProps {
  */
 export function OnboardingHeader({
   showBack = true,
+  backLabel = "Back",
+  onBackPress,
   step,
   totalSteps,
   logoHeight = 100,
@@ -37,7 +41,7 @@ export function OnboardingHeader({
 
       {showBack && (
         <Pressable
-          onPress={() => router.back()}
+          onPress={onBackPress ?? (() => router.back())}
           style={({ pressed }) => [styles.backButton, pressed && styles.pressed]}
           hitSlop={8}
         >
@@ -46,7 +50,7 @@ export function OnboardingHeader({
             style={styles.backArrow}
             contentFit="contain"
           />
-          <Text style={styles.backText}>Back</Text>
+          <Text style={styles.backText}>{backLabel}</Text>
         </Pressable>
       )}
 

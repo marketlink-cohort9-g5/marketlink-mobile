@@ -1,28 +1,33 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  type TextInputInstance,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import { CodeBoxInput } from "@/components/auth/CodeBoxInput";
+import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
+import { typography } from "@/theme/typography";
 
+/**
+ * Reset PIN OTP verification screen matching Figma Reset Check your Phone frame.
+ */
 export default function ResetPinOtpScreen() {
   const params = useLocalSearchParams<{ phone?: string }>();
-
   const phone = params.phone || "+234 8145232323";
 
   const [otp, setOtp] = useState("");
   const [countdown, setCountdown] = useState(45);
-
-  const inputRef = useRef<TextInputInstance>(null);
 
   useEffect(() => {
     if (countdown <= 0) return;
@@ -37,7 +42,6 @@ export default function ResetPinOtpScreen() {
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
@@ -46,8 +50,6 @@ export default function ResetPinOtpScreen() {
 
     setCountdown(45);
     setOtp("");
-
-    // Resend OTP API integration will be added here.
     Alert.alert(
       "Code Requested",
       "Your new verification code has been requested.",
@@ -64,221 +66,136 @@ export default function ResetPinOtpScreen() {
     }
 
     Keyboard.dismiss();
-
-    // OTP verification API integration will be added here.
-    router.replace("/(auth)/reset-pin-new" as any);
+    router.replace("/(auth)/reset-pin-new");
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      {/* Back Button */}
-      <Pressable onPress={() => router.back()} style={styles.backButton}>
-        <Text style={styles.backText}>‹ Back</Text>
-      </Pressable>
-
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>Check Your Phone</Text>
-
-        <Text style={styles.subtitle}>
-          We sent a 6-digit code to {phone}. Enter it to continue.
-        </Text>
-      </View>
-
-      {/* OTP Input */}
-      <Pressable
-        style={styles.otpContainer}
-        onPress={() => inputRef.current?.focus()}
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {Array.from({ length: 6 }).map((_, index) => (
-          <View
-            key={index}
-            style={[styles.otpBox, otp.length === index && styles.activeOtpBox]}
-          >
-            <Text style={styles.otpText}>{otp[index] || ""}</Text>
-          </View>
-        ))}
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <OnboardingHeader showBack logoHeight={115} />
 
-        <TextInput
-          ref={inputRef}
-          value={otp}
-          onChangeText={(value) =>
-            setOtp(value.replace(/[^0-9]/g, "").slice(0, 6))
-          }
-          keyboardType="number-pad"
-          maxLength={6}
-          style={styles.hiddenInput}
-          caretHidden
-          autoFocus={false}
-        />
-      </Pressable>
+          <Text style={styles.title}>Check Your Phone</Text>
 
-      {/* Resend Code */}
-      <View style={styles.resendContainer}>
-        <View style={styles.resendRow}>
-          <Text style={styles.resendText}>Didn't receive a code? </Text>
-
-          <Pressable onPress={handleResend} disabled={countdown > 0}>
-            <Text
-              style={[styles.resendLink, countdown > 0 && styles.disabledLink]}
-            >
-              Resend code
-            </Text>
-          </Pressable>
-        </View>
-
-        {countdown > 0 && (
-          <Text style={styles.countdownText}>
-            Resend code in {formatTime(countdown)}
+          <Text style={styles.subtitle}>
+            We sent a 6-digit code to {phone}. Enter it to continue.
           </Text>
-        )}
-      </View>
 
-      {/* Continue Button */}
-      <Pressable
-        style={[
-          styles.continueButton,
-          otp.length !== 6 && styles.disabledButton,
-        ]}
-        onPress={handleContinue}
-        disabled={otp.length !== 6}
-      >
-        <Text style={styles.continueButtonText}>Continue</Text>
-      </Pressable>
-    </ScrollView>
+          <CodeBoxInput length={6} value={otp} onChangeText={setOtp} spread />
+
+          <View style={styles.resendRow}>
+            <Text style={styles.resendText}>Didn&apos;t receive a code? </Text>
+            <Pressable onPress={handleResend} disabled={countdown > 0}>
+              <Text
+                style={[styles.resendLink, countdown > 0 && styles.disabledLink]}
+              >
+                Resend code
+              </Text>
+            </Pressable>
+          </View>
+
+          {countdown > 0 && (
+            <Text style={styles.countdownText}>
+              Resend code in  {formatTime(countdown)}
+            </Text>
+          )}
+
+          <View style={styles.bottomSection}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.continueButton,
+                pressed && styles.pressed,
+              ]}
+              onPress={handleContinue}
+            >
+              <Text style={styles.continueButtonText}>Continue</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.primaryLight,
+  },
+  flex: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: colors.primaryLight,
+  },
   container: {
-    flex: 1,
-    backgroundColor: colors.white,
-  },
-
-  content: {
     flexGrow: 1,
-    padding: 24,
-    paddingTop: 32,
-    gap: 24,
-  },
-
-  backButton: {
-    minHeight: 48,
-    justifyContent: "center",
-    alignSelf: "flex-start",
-  },
-
-  backText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.primary,
-  },
-
-  header: {
-    gap: spacing.md,
-    marginTop: spacing.xl,
-  },
-
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: colors.text,
-  },
-
-  subtitle: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: colors.textSecondary,
-  },
-
-  otpContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: 8,
-    marginTop: spacing.xl,
-    position: "relative",
-  },
-
-  otpBox: {
-    flex: 1,
-    height: 58,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: colors.white,
-  },
-
-  activeOtpBox: {
-    borderColor: colors.primary,
-    borderWidth: 2,
-  },
-
-  otpText: {
-    fontSize: 22,
-    fontWeight: "700",
-    color: colors.text,
-  },
-
-  hiddenInput: {
-    position: "absolute",
     width: "100%",
-    height: 58,
-    opacity: 0,
+    maxWidth: 440,
+    alignSelf: "center",
+    padding: spacing.xl,
+    gap: spacing.xl,
+    alignItems: "flex-start",
   },
-
-  resendContainer: {
-    gap: spacing.sm,
-    marginTop: spacing.md,
+  title: {
+    fontSize: typography.fontSize.title,
+    fontWeight: typography.fontWeight.bold,
+    color: colors.text,
   },
-
+  subtitle: {
+    fontSize: typography.fontSize.body,
+    lineHeight: 22,
+    color: colors.text,
+  },
   resendRow: {
     flexDirection: "row",
     flexWrap: "wrap",
     alignItems: "center",
   },
-
   resendText: {
-    fontSize: 14,
-    color: colors.textSecondary,
-  },
-
-  resendLink: {
-    fontSize: 14,
-    fontWeight: "700",
-    color: colors.primary,
-  },
-
-  disabledLink: {
+    fontSize: typography.fontSize.body,
     color: colors.textLight,
   },
-
-  countdownText: {
-    fontSize: 14,
-    color: colors.textSecondary,
+  resendLink: {
+    fontSize: typography.fontSize.body,
+    color: colors.primary,
   },
-
+  disabledLink: {
+    opacity: 0.6,
+  },
+  countdownText: {
+    fontSize: typography.fontSize.caption,
+    color: colors.text,
+  },
+  bottomSection: {
+    width: "100%",
+    marginTop: "auto",
+    paddingTop: spacing.xl,
+  },
   continueButton: {
-    height: 54,
-    borderRadius: 12,
-    backgroundColor: colors.primary,
+    width: "100%",
+    borderRadius: 8,
+    backgroundColor: colors.white,
+    paddingVertical: 14,
+    paddingHorizontal: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: spacing.xl,
   },
-
-  disabledButton: {
-    opacity: 0.5,
-  },
-
   continueButtonText: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: colors.white,
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
+    color: colors.primary,
+  },
+  pressed: {
+    opacity: 0.85,
   },
 });

@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Keyboard,
@@ -7,12 +7,11 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
-  type TextInputInstance,
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { CodeBoxInput } from "@/components/auth/CodeBoxInput";
 import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
 import { SupportFooter } from "@/components/auth/SupportFooter";
 import { colors } from "@/theme/colors";
@@ -33,7 +32,6 @@ export default function VerifyOtpScreen() {
 
   const [otp, setOtp] = useState("");
   const [countdown, setCountdown] = useState(0);
-  const inputRef = useRef<TextInputInstance>(null);
 
   useEffect(() => {
     if (countdown <= 0) return;
@@ -101,34 +99,7 @@ export default function VerifyOtpScreen() {
           number. Enter the code below to verify your account.
         </Text>
 
-        <Pressable
-          style={styles.otpContainer}
-          onPress={() => inputRef.current?.focus()}
-        >
-          {Array.from({ length: 6 }).map((_, index) => {
-            const isActive = otp.length === index;
-            return (
-              <View
-                key={index}
-                style={[styles.otpBox, isActive && styles.otpBoxActive]}
-              >
-                <Text style={styles.otpDigit}>{otp[index] || ""}</Text>
-              </View>
-            );
-          })}
-
-          <TextInput
-            ref={inputRef}
-            value={otp}
-            onChangeText={(value) =>
-              setOtp(value.replace(/[^0-9]/g, "").slice(0, 6))
-            }
-            keyboardType="number-pad"
-            maxLength={6}
-            style={styles.hiddenInput}
-            caretHidden
-          />
-        </Pressable>
+        <CodeBoxInput length={6} value={otp} onChangeText={setOtp} spread />
 
         <View style={styles.resendRow}>
           <Text style={styles.resendText}>Didn&apos;t receive a code? </Text>
@@ -187,41 +158,6 @@ const styles = StyleSheet.create({
     fontWeight: typography.fontWeight.semiBold,
     color: colors.textSecondary,
     lineHeight: 26,
-  },
-  otpContainer: {
-    width: "100%",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    gap: spacing.sm,
-    position: "relative",
-  },
-  otpBox: {
-    flex: 1,
-    height: 52,
-    maxWidth: 48,
-    backgroundColor: colors.white,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  otpBoxActive: {
-    borderColor: colors.primary,
-    borderWidth: 1.5,
-  },
-  otpDigit: {
-    fontSize: typography.fontSize.subtitle,
-    fontWeight: typography.fontWeight.semiBold,
-    color: colors.text,
-  },
-  hiddenInput: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    opacity: 0,
   },
   resendRow: {
     flexDirection: "row",

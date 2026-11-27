@@ -11,16 +11,23 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
+import { CodeBoxInput } from "@/components/auth/CodeBoxInput";
+import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
 import { colors } from "@/theme/colors";
+import { spacing } from "@/theme/spacing";
+import { typography } from "@/theme/typography";
 import { isValidPhone, isValidPin } from "@/utils/validators";
 
+/**
+ * Sign In screen matching Figma Sign In frame.
+ */
 export default function LoginScreen() {
   const [phone, setPhone] = useState("");
   const [pin, setPin] = useState("");
-  const [showPin, setShowPin] = useState(false);
 
-  const handleLogin = async () => {
+  const handleLogin = () => {
     if (!phone.trim()) {
       Alert.alert("Missing Phone Number", "Please enter your phone number.");
       return;
@@ -39,38 +46,34 @@ export default function LoginScreen() {
       return;
     }
 
-    // Temporary login test.
-    // Backend authentication and dashboard routing will be connected later.
-    router.replace("/(retailer)/(tabs)/search" as any);
+    router.replace("/(retailer)/(tabs)/home");
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={styles.scrollContent}
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backText}>‹ Back</Text>
-        </Pressable>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <OnboardingHeader showBack={false} logoHeight={115} />
 
-        <View style={styles.header}>
           <Text style={styles.title}>Welcome Back!</Text>
-          <Text style={styles.subtitle}>
-            Sign in to continue managing your shop and orders.
-          </Text>
-        </View>
 
-        <View style={styles.form}>
-          <View style={styles.inputGroup}>
+          <Text style={styles.subtitle}>
+            Sign in to continue managing your shop and orders
+          </Text>
+
+          <View style={styles.field}>
             <Text style={styles.label}>Phone Number</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your phone number"
+              placeholder="Enter Your Phone Number"
               placeholderTextColor={colors.textLight}
               keyboardType="phone-pad"
               value={phone}
@@ -79,164 +82,139 @@ export default function LoginScreen() {
             />
           </View>
 
-          <View style={styles.inputGroup}>
-            <View style={styles.pinHeader}>
-              <Text style={styles.label}>PIN</Text>
+          <View style={styles.field}>
+            <Text style={styles.label}>Pin</Text>
+            <CodeBoxInput
+              length={4}
+              value={pin}
+              onChangeText={setPin}
+              masked
+              spread
+            />
+          </View>
 
-              <Pressable
-                onPress={() => router.push("/(auth)/reset-pin" as any)}
-              >
-                <Text style={styles.forgotText}>Forgot Your PIN?</Text>
-              </Pressable>
-            </View>
+          <Pressable onPress={() => router.push("/(auth)/reset-pin")}>
+            <Text style={styles.forgotText}>Forgot Your Password?</Text>
+          </Pressable>
 
-            <View style={styles.pinContainer}>
-              <TextInput
-                style={styles.pinInput}
-                placeholder="Enter your 4-digit PIN"
-                placeholderTextColor={colors.textLight}
-                keyboardType="number-pad"
-                secureTextEntry={!showPin}
-                value={pin}
-                onChangeText={(value) =>
-                  setPin(value.replace(/\D/g, "").slice(0, 4))
-                }
-                maxLength={4}
-              />
+          <View style={styles.bottomSection}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.primaryButton,
+                pressed && styles.pressed,
+              ]}
+              onPress={handleLogin}
+            >
+              <Text style={styles.primaryButtonText}>Log In</Text>
+            </Pressable>
 
-              <Pressable onPress={() => setShowPin(!showPin)}>
-                <Text style={styles.showPinText}>
-                  {showPin ? "Hide" : "Show"}
-                </Text>
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>New to MarketLink? </Text>
+              <Pressable onPress={() => router.push("/(auth)/onboarding")}>
+                <Text style={styles.createAccountText}>Create Account</Text>
               </Pressable>
             </View>
           </View>
-
-          <Pressable style={styles.primaryButton} onPress={handleLogin}>
-            <Text style={styles.primaryButtonText}>Log In</Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>New to MarketLink?</Text>
-
-          <Pressable onPress={() => router.push("/(auth)/onboarding" as any)}>
-            <Text style={styles.createAccountText}>Create Account</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.primaryLight,
   },
-  scrollContent: {
+  flex: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: colors.primaryLight,
+  },
+  container: {
     flexGrow: 1,
-    padding: 24,
-    paddingTop: 35,
-  },
-  backButton: {
-    marginBottom: 35,
-  },
-  backText: {
-    color: colors.primary,
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  header: {
-    marginBottom: 35,
+    width: "100%",
+    maxWidth: 440,
+    alignSelf: "center",
+    padding: spacing.xl,
+    gap: spacing.md,
+    alignItems: "flex-start",
   },
   title: {
-    fontSize: 28,
-    fontWeight: "700",
+    fontSize: typography.fontSize.heading,
+    fontWeight: typography.fontWeight.bold,
     color: colors.text,
-    marginBottom: 10,
+    letterSpacing: 1.6,
   },
   subtitle: {
-    fontSize: 16,
-    lineHeight: 24,
-    color: colors.textSecondary,
+    fontSize: typography.fontSize.body,
+    color: colors.text,
+    lineHeight: 22,
   },
-  form: {
-    gap: 24,
-  },
-  inputGroup: {
-    gap: 10,
+  field: {
+    width: "100%",
+    gap: spacing.sm,
+    marginTop: spacing.xs,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: typography.fontSize.title,
+    fontWeight: typography.fontWeight.bold,
     color: colors.text,
   },
   input: {
-    height: 54,
+    width: "100%",
+    height: 52,
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    borderRadius: 8,
+    paddingHorizontal: spacing.md,
+    fontSize: typography.fontSize.body,
     color: colors.text,
-  },
-  pinHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
   },
   forgotText: {
     color: colors.primary,
-    fontSize: 14,
-    fontWeight: "600",
+    fontSize: typography.fontSize.body,
+    marginTop: spacing.xs,
   },
-  pinContainer: {
-    height: 54,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    flexDirection: "row",
+  bottomSection: {
+    width: "100%",
+    marginTop: "auto",
+    paddingTop: spacing.xxl,
+    gap: spacing.lg,
     alignItems: "center",
-  },
-  pinInput: {
-    flex: 1,
-    fontSize: 16,
-    color: colors.text,
-  },
-  showPinText: {
-    color: colors.primary,
-    fontSize: 14,
-    fontWeight: "600",
   },
   primaryButton: {
-    height: 54,
+    width: "100%",
     backgroundColor: colors.primary,
-    borderRadius: 12,
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: spacing.xl,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 12,
   },
   primaryButtonText: {
     color: colors.white,
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
   },
   footer: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
-    gap: 5,
-    marginTop: 40,
   },
   footerText: {
-    color: colors.textSecondary,
-    fontSize: 14,
+    color: colors.text,
+    fontSize: typography.fontSize.body,
   },
   createAccountText: {
     color: colors.primary,
-    fontSize: 14,
-    fontWeight: "700",
+    fontSize: typography.fontSize.body,
+    fontWeight: typography.fontWeight.bold,
+  },
+  pressed: {
+    opacity: 0.85,
   },
 });

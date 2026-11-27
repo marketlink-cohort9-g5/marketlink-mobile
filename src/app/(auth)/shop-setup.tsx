@@ -2,6 +2,8 @@ import { router } from "expo-router";
 import { useState } from "react";
 import {
   Alert,
+  KeyboardAvoidingView,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -9,11 +11,18 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
+import { typography } from "@/theme/typography";
 
-const shopTypes = ["Provision Store", "Supermarket", "Mini-Mart", "Kiosk"];
+const SHOP_TYPES = ["Provision Store", "Supermarket", "Mini-Mart", "Kiosk"] as const;
 
+/**
+ * Retailer shop onboarding screen matching Figma Retailer Shop Details frames.
+ */
 export default function ShopSetupScreen() {
   const [shopName, setShopName] = useState("");
   const [shopType, setShopType] = useState("");
@@ -29,227 +38,270 @@ export default function ShopSetupScreen() {
       return;
     }
 
-    router.replace("/(auth)/login" as any);
+    router.replace("/(auth)/login");
   };
 
   const handleSkip = () => {
-    router.replace("/(auth)/login" as any);
+    router.replace("/(auth)/login");
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-      keyboardShouldPersistTaps="handled"
-    >
-      <Pressable onPress={() => router.back()} style={styles.backButton}>
-        <Text style={styles.backText}>‹ Back</Text>
-      </Pressable>
-
-      <View style={styles.header}>
-        <Text style={styles.title}>Set Up Your Shop</Text>
-        <Text style={styles.description}>
-          Tell us a little about your shop so wholesalers can serve you better.
-        </Text>
-      </View>
-
-      {/* Shop Name */}
-      <View style={styles.field}>
-        <Text style={styles.label}>Shop Name</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Enter your shop name"
-          placeholderTextColor={colors.textLight}
-          value={shopName}
-          onChangeText={setShopName}
-        />
-      </View>
-
-      {/* Shop Type Dropdown */}
-      <View style={styles.field}>
-        <Text style={styles.label}>Shop Type</Text>
-
-        <Pressable
-          style={styles.dropdown}
-          onPress={() => setShowShopTypes(!showShopTypes)}
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          <Text style={[styles.dropdownText, !shopType && styles.placeholder]}>
-            {shopType || "Select your shop type"}
+          <OnboardingHeader showBack logoHeight={100} />
+
+          <Text style={styles.title}>Set Up Your Shop</Text>
+
+          <Text style={styles.description}>
+            Tell us a little about your shop so wholesalers can serve you better.
           </Text>
 
-          <Text style={styles.dropdownArrow}>{showShopTypes ? "▲" : "▼"}</Text>
-        </Pressable>
-
-        {showShopTypes && (
-          <View style={styles.dropdownOptions}>
-            {shopTypes.map((type) => (
-              <Pressable
-                key={type}
-                style={styles.dropdownOption}
-                onPress={() => {
-                  setShopType(type);
-                  setShowShopTypes(false);
-                }}
-              >
-                <Text style={styles.dropdownOptionText}>{type}</Text>
-              </Pressable>
-            ))}
+          <View style={styles.field}>
+            <Text style={styles.label}>Shop Name</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your shop name"
+              placeholderTextColor={colors.textSecondary}
+              value={shopName}
+              onChangeText={setShopName}
+            />
           </View>
-        )}
-      </View>
 
-      {/* Shop Address */}
-      <View style={styles.field}>
-        <Text style={styles.label}>Shop Address</Text>
-        <TextInput
-          style={[styles.input, styles.addressInput]}
-          placeholder="Enter your shop address"
-          placeholderTextColor={colors.textLight}
-          value={shopAddress}
-          onChangeText={setShopAddress}
-          multiline
-          textAlignVertical="top"
-        />
-      </View>
+          <View style={styles.field}>
+            <Text style={styles.label}>Shop Type</Text>
 
-      <Text style={styles.note}>
-        You can complete this later from your profile.
-      </Text>
+            <Pressable
+              style={styles.dropdown}
+              onPress={() => setShowShopTypes((prev) => !prev)}
+            >
+              <Text
+                style={[
+                  styles.dropdownText,
+                  !shopType && styles.dropdownPlaceholder,
+                ]}
+              >
+                {shopType || "Select your shop type"}
+              </Text>
 
-      <Pressable style={styles.saveButton} onPress={handleSave}>
-        <Text style={styles.saveButtonText}>Save & Continue</Text>
-      </Pressable>
+              <View
+                style={[
+                  styles.chevron,
+                  showShopTypes && styles.chevronOpen,
+                ]}
+              />
+            </Pressable>
 
-      <Pressable style={styles.skipButton} onPress={handleSkip}>
-        <Text style={styles.skipButtonText}>Skip for now</Text>
-      </Pressable>
-    </ScrollView>
+            {showShopTypes && (
+              <View style={styles.dropdownOptions}>
+                {SHOP_TYPES.map((type, index) => (
+                  <Pressable
+                    key={type}
+                    style={[
+                      styles.dropdownOption,
+                      index === SHOP_TYPES.length - 1 && styles.dropdownOptionLast,
+                    ]}
+                    onPress={() => {
+                      setShopType(type);
+                      setShowShopTypes(false);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.dropdownOptionText,
+                        shopType === type && styles.dropdownOptionSelected,
+                      ]}
+                    >
+                      {type}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+          </View>
+
+          <View style={styles.field}>
+            <Text style={styles.label}>Shop Address</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your shop address"
+              placeholderTextColor={colors.textLight}
+              value={shopAddress}
+              onChangeText={setShopAddress}
+            />
+          </View>
+
+          <Text style={styles.note}>
+            You can complete this later from your profile.
+          </Text>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.saveButton,
+              pressed && styles.pressed,
+            ]}
+            onPress={handleSave}
+          >
+            <Text style={styles.saveButtonText}>Save &amp; Continue</Text>
+          </Pressable>
+
+          <Pressable
+            style={({ pressed }) => [
+              styles.skipButton,
+              pressed && styles.pressed,
+            ]}
+            onPress={handleSkip}
+          >
+            <Text style={styles.skipButtonText}>Skip for now.</Text>
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    backgroundColor: colors.white,
+    backgroundColor: colors.primaryLight,
   },
-  content: {
-    paddingTop: 24,
-    paddingHorizontal: 24,
-    paddingBottom: 40,
+  flex: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: colors.primaryLight,
+  },
+  container: {
+    flexGrow: 1,
+    width: "100%",
+    maxWidth: 440,
+    alignSelf: "center",
+    padding: spacing.xl,
     gap: spacing.lg,
-  },
-  backButton: {
-    alignSelf: "flex-start",
-    minHeight: 48,
-    justifyContent: "center",
-  },
-  backText: {
-    fontSize: 16,
-    color: colors.primary,
-    fontWeight: "600",
-  },
-  header: {
-    gap: spacing.sm,
+    alignItems: "flex-start",
   },
   title: {
-    fontSize: 28,
-    fontWeight: "700",
+    fontSize: typography.fontSize.title,
+    fontWeight: typography.fontWeight.bold,
     color: colors.text,
   },
   description: {
-    fontSize: 16,
-    lineHeight: 24,
+    fontSize: typography.fontSize.body,
+    lineHeight: 22,
     color: colors.textSecondary,
   },
   field: {
+    width: "100%",
     gap: spacing.sm,
   },
   label: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
     color: colors.text,
   },
   input: {
+    width: "100%",
     height: 52,
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    fontSize: 16,
+    borderRadius: 8,
+    paddingHorizontal: spacing.md,
+    fontSize: typography.fontSize.body,
     color: colors.text,
-    backgroundColor: colors.white,
-  },
-  addressInput: {
-    height: 100,
-    paddingTop: 14,
   },
   dropdown: {
+    width: "100%",
     height: 52,
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
+    borderRadius: 8,
+    paddingHorizontal: spacing.md,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    backgroundColor: colors.white,
   },
   dropdownText: {
-    fontSize: 16,
+    fontSize: typography.fontSize.body,
     color: colors.text,
   },
-  placeholder: {
+  dropdownPlaceholder: {
     color: colors.textLight,
   },
-  dropdownArrow: {
-    fontSize: 14,
-    color: colors.textSecondary,
+  chevron: {
+    width: 11,
+    height: 11,
+    borderRightWidth: 2,
+    borderBottomWidth: 2,
+    borderColor: colors.text,
+    transform: [{ rotate: "45deg" }, { translateY: -2 }],
+    marginRight: spacing.xs,
+  },
+  chevronOpen: {
+    transform: [{ rotate: "-135deg" }, { translateY: -2 }],
   },
   dropdownOptions: {
+    width: "100%",
+    backgroundColor: colors.white,
     borderWidth: 1,
     borderColor: colors.border,
-    borderRadius: 12,
-    marginTop: 6,
+    borderRadius: 8,
     overflow: "hidden",
-    backgroundColor: colors.white,
   },
   dropdownOption: {
-    minHeight: 48,
-    justifyContent: "center",
-    paddingHorizontal: 16,
+    paddingVertical: 14,
+    paddingHorizontal: spacing.md,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  dropdownOptionLast: {
+    borderBottomWidth: 0,
+  },
   dropdownOptionText: {
-    fontSize: 16,
+    fontSize: typography.fontSize.body,
+    fontWeight: typography.fontWeight.semiBold,
     color: colors.text,
   },
+  dropdownOptionSelected: {
+    color: colors.primary,
+  },
   note: {
-    fontSize: 14,
-    color: colors.textSecondary,
-    textAlign: "center",
+    fontSize: typography.fontSize.body,
+    color: colors.textLight,
   },
   saveButton: {
-    height: 54,
-    borderRadius: 12,
+    width: "100%",
     backgroundColor: colors.primary,
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: spacing.sm,
   },
   saveButtonText: {
     color: colors.white,
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
   },
   skipButton: {
-    height: 48,
-    alignItems: "center",
-    justifyContent: "center",
+    paddingVertical: spacing.xs,
   },
   skipButtonText: {
-    fontSize: 16,
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
     color: colors.primary,
-    fontWeight: "600",
+  },
+  pressed: {
+    opacity: 0.85,
   },
 });

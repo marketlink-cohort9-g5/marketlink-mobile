@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import { router } from "expo-router";
+import { useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -7,19 +8,23 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
-import { router } from "expo-router";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import { CodeBoxInput } from "@/components/auth/CodeBoxInput";
+import { OnboardingHeader } from "@/components/auth/OnboardingHeader";
 import { colors } from "@/theme/colors";
 import { spacing } from "@/theme/spacing";
-import { isValidPin, doPinsMatch } from "@/utils/validators";
+import { typography } from "@/theme/typography";
+import { doPinsMatch, isValidPin } from "@/utils/validators";
 
+/**
+ * New PIN entry screen matching Figma Choose a New Password frame.
+ */
 export default function ResetPinNewScreen() {
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
-  const [showNewPin, setShowNewPin] = useState(false);
-  const [showConfirmPin, setShowConfirmPin] = useState(false);
 
   const handleSavePassword = () => {
     if (!newPin || !confirmPin) {
@@ -37,185 +42,125 @@ export default function ResetPinNewScreen() {
       return;
     }
 
-    // PIN reset API integration will be added here.
     Alert.alert(
       "PIN Ready",
-      "Your new PIN has passed validation. You can now return to Login.",
+      "Your new PIN has been saved. You can now return to Login.",
       [
         {
           text: "Continue",
-          onPress: () => router.replace("/(auth)/login" as any),
+          onPress: () => router.replace("/(auth)/login"),
         },
       ],
     );
   };
 
   return (
-    <KeyboardAvoidingView
-      style={styles.container}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={styles.content}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={styles.safeArea} edges={["top", "bottom"]}>
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {/* Back Button */}
-        <Pressable onPress={() => router.back()} style={styles.backButton}>
-          <Text style={styles.backText}>‹ Back</Text>
-        </Pressable>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.container}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <OnboardingHeader showBack logoHeight={115} />
 
-        {/* Heading */}
-        <View style={styles.header}>
           <Text style={styles.title}>Choose a new pin</Text>
-        </View>
 
-        {/* New PIN */}
-        <View style={styles.field}>
-          <Text style={styles.label}>New Pin</Text>
-
-          <View style={styles.pinContainer}>
-            <TextInput
-              style={styles.pinInput}
-              value={newPin}
-              onChangeText={(value) =>
-                setNewPin(value.replace(/[^0-9]/g, "").slice(0, 4))
-              }
-              keyboardType="number-pad"
-              maxLength={4}
-              secureTextEntry={!showNewPin}
-              placeholder="Enter your new PIN"
-              placeholderTextColor={colors.textLight}
-            />
-
-            <Pressable onPress={() => setShowNewPin(!showNewPin)}>
-              <Text style={styles.showText}>
-                {showNewPin ? "Hide" : "Show"}
-              </Text>
-            </Pressable>
+          <View style={styles.field}>
+            <Text style={styles.label}>New Pin</Text>
+            <CodeBoxInput length={4} value={newPin} onChangeText={setNewPin} />
+            <Text style={styles.helperText}>4 characters</Text>
           </View>
 
-          <Text style={styles.helperText}>4 characters</Text>
-        </View>
-
-        {/* Confirm PIN */}
-        <View style={styles.field}>
-          <Text style={styles.label}>Confirm new pin</Text>
-
-          <View style={styles.pinContainer}>
-            <TextInput
-              style={styles.pinInput}
+          <View style={styles.field}>
+            <Text style={styles.label}>Confirm new pin</Text>
+            <CodeBoxInput
+              length={4}
               value={confirmPin}
-              onChangeText={(value) =>
-                setConfirmPin(value.replace(/[^0-9]/g, "").slice(0, 4))
-              }
-              keyboardType="number-pad"
-              maxLength={4}
-              secureTextEntry={!showConfirmPin}
-              placeholder="Confirm your new PIN"
-              placeholderTextColor={colors.textLight}
+              onChangeText={setConfirmPin}
             />
+          </View>
 
-            <Pressable onPress={() => setShowConfirmPin(!showConfirmPin)}>
-              <Text style={styles.showText}>
-                {showConfirmPin ? "Hide" : "Show"}
-              </Text>
+          <View style={styles.bottomSection}>
+            <Pressable
+              style={({ pressed }) => [
+                styles.saveButton,
+                pressed && styles.pressed,
+              ]}
+              onPress={handleSavePassword}
+            >
+              <Text style={styles.saveButtonText}>Save Password</Text>
             </Pressable>
           </View>
-        </View>
-
-        {/* Save Button */}
-        <Pressable style={styles.saveButton} onPress={handleSavePassword}>
-          <Text style={styles.saveButtonText}>Save Password</Text>
-        </Pressable>
-      </ScrollView>
-    </KeyboardAvoidingView>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.primaryLight,
+  },
+  flex: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+    backgroundColor: colors.primaryLight,
+  },
   container: {
-    flex: 1,
-    backgroundColor: colors.white,
-  },
-
-  content: {
     flexGrow: 1,
-    padding: 24,
-    paddingTop: 32,
-    gap: 24,
+    width: "100%",
+    maxWidth: 440,
+    alignSelf: "center",
+    padding: spacing.xl,
+    gap: spacing.xl,
+    alignItems: "flex-start",
   },
-
-  backButton: {
-    minHeight: 48,
-    justifyContent: "center",
-    alignSelf: "flex-start",
-  },
-
-  backText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: colors.primary,
-  },
-
-  header: {
-    marginTop: spacing.xl,
-  },
-
   title: {
-    fontSize: 28,
-    fontWeight: "700",
+    fontSize: typography.fontSize.title,
+    fontWeight: typography.fontWeight.bold,
     color: colors.text,
   },
-
   field: {
-    gap: spacing.sm,
+    width: "100%",
+    gap: spacing.lg,
   },
-
   label: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: typography.fontSize.title,
+    fontWeight: typography.fontWeight.bold,
     color: colors.text,
   },
-
-  pinContainer: {
-    height: 56,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: colors.white,
-  },
-
-  pinInput: {
-    flex: 1,
-    fontSize: 16,
-    color: colors.text,
-  },
-
-  showText: {
-    fontSize: 14,
-  },
-
   helperText: {
-    fontSize: 13,
-    color: colors.textSecondary,
+    fontSize: typography.fontSize.body,
+    color: colors.textLight,
   },
-
+  bottomSection: {
+    width: "100%",
+    marginTop: "auto",
+    paddingTop: spacing.xl,
+  },
   saveButton: {
-    height: 54,
-    borderRadius: 12,
+    width: "100%",
+    borderRadius: 8,
     backgroundColor: colors.primary,
+    paddingVertical: 14,
+    paddingHorizontal: spacing.xl,
     alignItems: "center",
     justifyContent: "center",
-    marginTop: spacing.xl,
   },
-
   saveButtonText: {
-    fontSize: 16,
-    fontWeight: "700",
+    fontSize: typography.fontSize.subtitle,
+    fontWeight: typography.fontWeight.semiBold,
     color: colors.white,
+  },
+  pressed: {
+    opacity: 0.85,
   },
 });
