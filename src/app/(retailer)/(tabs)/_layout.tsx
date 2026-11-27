@@ -21,7 +21,7 @@ function renderTabIcon(
 }
 
 /**
- * Retailer bottom tab navigator matching Figma Navigation Bar (Home, Search, Orders, Profile).
+ * Retailer bottom tab navigator .
  */
 export default function RetailerTabsLayout() {
   const insets = useSafeAreaInsets();
