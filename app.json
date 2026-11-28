@@ -32,6 +32,15 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
+      ],
+      "@react-native-vector-icons/ionicons",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "MarketLink accesses your photos so you can upload your valid ID document and shop photo.",
+          "cameraPermission": "MarketLink accesses your camera so you can snap a clear photo of your shop or valid ID.",
+          "microphonePermission": false
+        }
       ]
     ],
     "experiments": {
